@@ -33,11 +33,30 @@ for trajectoryIdx = 1:1
     [data_2, text] = xlsread(cam_file_2);
     [data_3, text] = xlsread(cam_file_3);
 
-    n_frames = size(data_1, 1)
-    result = zeros(n_frames, 4);
+    nRows = size(data_1, 1)
+    result = zeros(nRows, 4);
 
-    for frameIdx = 1 : n_frames
-        frameData = data_1(frameIdx, :)
+    for rowIdx = 1:nRows
+        frameData1 = data_1(rowIdx, :);
+        frameData2 = data_2(rowIdx, :);
+        frameData3 = data_3(rowIdx, :);
+        frame = data_1(rowIdx);
+
+        % Don't process if any coord pt is not defined
+        if (any(isnan(frameData1), 2) || any(isnan(frameData2), 2) || any(isnan(frameData3), 2))
+            frame
+            break
+        end
+
+        u1 = data_1(rowIdx, COL_NUM_UNDISTORT_U);
+        v1 = data_1(rowIdx, COL_NUM_UNDISTORT_V);
+
+        u2 = data_2(rowIdx, COL_NUM_UNDISTORT_U);
+        v2 = data_2(rowIdx, COL_NUM_UNDISTORT_V);
+
+        u3 = data_3(rowIdx, COL_NUM_UNDISTORT_U);
+        v3 = data_3(rowIdx, COL_NUM_UNDISTORT_V);
+
     end
 
     % Process 2D to 3D

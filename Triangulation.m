@@ -1,16 +1,66 @@
-% Set constants
-N_CAMERAS = 3;
+% Read File List
+FILE_LIST_NAME = 'FileList.csv';
+[num, FILE_VIDEO_LIST] = xlsread(FILE_LIST_NAME);
+FILE_ANNOTATION_LIST = get_file_annotation_list(FILE_VIDEO_LIST);
+
+% Set CAMERA constants
+N_TRAJECTORIES = size(FILE_ANNOTATION_LIST, 1);
+N_CAMERAS = size(FILE_ANNOTATION_LIST, 2);
 INTRINSIC_MATRICES = get_intrinsic_matrices();
 ROTATION_MATRICES = get_rotation_matrices();
 TRANSLATION_VECTORS = get_translation_vectors();
 
-% Read 2D data from file
+% Constants for reading from file
+COL_NUM_FRAME = 1;
+COL_NUM_U = 2;
+COL_NUM_V = 3;
+COL_NUM_UNDISTORT_U = 4;
+COL_NUM_UNDISTORT_V = 5;
 
-% Process 2D to 3D
+% Constants for writing to file
+COL_NUM_FRAME = 1;
+COL_NUM_X = 2;
+COL_NUM_Y = 3;
+COL_NUM_Z = 4;
 
-% Write 3D data to file
+% for trajectoryIdx = 1 : N_TRAJECTORIES
+for trajectoryIdx = 1:1
+    % Read 2D data from file
+    cam_file_1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
+    cam_file_2 = FILE_ANNOTATION_LIST{trajectoryIdx, 2};
+    cam_file_3 = FILE_ANNOTATION_LIST{trajectoryIdx, 3};
+    [data_1, text] = xlsread(cam_file_1);
+    [data_2, text] = xlsread(cam_file_2);
+    [data_3, text] = xlsread(cam_file_3);
+
+    n_frames = size(data_1, 1)
+    result = zeros(n_frames, 4);
+
+    for frameIdx = 1 : n_frames
+        frameData = data_1(frameIdx, :)
+    end
+
+    % Process 2D to 3D
+
+    % Write 3D data to file
+end
 
 % ================================================ Helper Functions ================================================
+
+% Returns corresponding 2D data file locations from File List
+function FILE_ANNOTATION_LIST = get_file_annotation_list(FILE_VIDEO_LIST)
+    FILE_ANNOTATION_LIST = cell(size(FILE_VIDEO_LIST));
+
+    for fileIdx = 1:numel(FILE_VIDEO_LIST)
+        baseName = FILE_VIDEO_LIST{fileIdx}(1:find(FILE_VIDEO_LIST{fileIdx} == '.') - 1);
+        prefix = 'Annotation/';
+        fileType = '.csv';
+
+        FILE_ANNOTATION_LIST{fileIdx} = strcat(prefix, baseName, fileType);
+    end
+
+end
+
 function INTRINSIC_MATRICES = get_intrinsic_matrices()
     INTRINSIC_MATRIX_CAMERA_1 = [
                                 870.14531487461625, 0, 949.42001822880479;
@@ -49,6 +99,7 @@ function ROTATION_MATRICES = get_rotation_matrices()
     ROTATION_MATRICES = {R1, R2, R3};
 end
 
+% TODO: CORRECT TRANSLATION VECTORS
 function TRANSLATION_VECTORS = get_translation_vectors()
     t1 = [
         .13305621037591506;
@@ -68,4 +119,8 @@ function TRANSLATION_VECTORS = get_translation_vectors()
         2.2979640654841407;
         ];
     TRANSLATION_VECTORS = {t1, t2, t3};
+end
+
+function focal_length = get_focal_length(intrinsic_matrix_camera)
+    focal_length = intrinsic_matrix_camera(1, 1);
 end

@@ -136,6 +136,10 @@ class Camera:
         self.speed = 0.1
         self.pitch = 0
         self.yaw   = 0
+        self.distance = 10
+        self.theta = 0
+        self.phi = 0
+        self.center = np.array([0.0,0.0,0.0])
         self.pos = np.array([0.0,0.0,10.0])
         self.front = np.array([0.0,0.0,-1.0])
         self.up = np.array([0.0,1.0, 0.0])
@@ -143,7 +147,31 @@ class Camera:
         self.aspectRatio = 1.0
         self.zNear       = 0 
         self.zFar        = 10
+    '''
+    def moveUp(self):
+        self.phi+=self.speed
+        self.updatePos()
         
+    def moveDown(self):
+        self.phi-=self.speed
+        self.updatePos()
+      
+    def moveForward(self):
+        self.distance -= self.speed
+        self.updatePos()
+        
+    def moveBackward(self):
+        self.distance += self.speed
+        self.updatePos()
+        
+    def moveLeft(self):
+        self.theta -= self.speed
+        self.updatePos()
+        
+    def moveRight(self):
+        self.theta -= self.speed
+        self.updatePos() 
+    '''
     def moveForward(self):
         self.pos += self.speed * self.front
         
@@ -155,7 +183,7 @@ class Camera:
         
     def moveRight(self):
         self.pos += np.cross(self.front, self.up) * self.speed
-        
+    
     def lookUp(self):
         self.pitch += 1
         self.updateFront()
@@ -165,6 +193,7 @@ class Camera:
         self.updateFront()
         
     def lookLeft(self):
+        print(self.yaw)
         self.yaw -= 1
         self.updateFront()
         
@@ -172,6 +201,17 @@ class Camera:
         self.yaw += 1
         self.updateFront()
         
+    '''
+    def updatePos(self):
+        self.pos[0] = self.distance * np.cos(self.theta) * np.sin(self.phi)
+        self.pos[1] = self.distance * np.sin(self.theta) * np.sin(self.phi)
+        self.pos[2] = self.distance * np.cos(self.phi)
+        self.updateUp()
+        
+    def updateUp(self):
+        perp = np.array([self.pos[1], self.pos[0], 0])
+        self.up = np.cross(perp,(self.center - self.pos))
+    '''    
     def updateFront(self):
         self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.cos(np.deg2rad(self.yaw))
         self.front[1] = np.sin(np.deg2rad(self.pitch))
@@ -180,7 +220,7 @@ class Camera:
 class GL3DPlot(QGLWidget):
     def __init__(self, parent):
         QGLWidget.__init__(self, parent)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.TabFocus)
         self.grabKeyboard()
         self.cam = Camera()
         
@@ -303,8 +343,6 @@ class GL3DPlot(QGLWidget):
         glutInit()
         glClearColor(1.0, 1.0, 1.0, 1.0)
         glClearDepth(1.0)
-        glutMouseFunc(self.mouse)
-        glutMotionFunc(self.motion)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         
@@ -321,8 +359,10 @@ class GL3DPlot(QGLWidget):
     def keyPressEvent(self, event):        
         if event.key() == 87:
             self.cam.moveForward()
+            #self.cam.moveUp()
         if event.key() == 83:
             self.cam.moveBackward()
+            #self.cam.moveDown()
         if event.key() == 65:
             self.cam.moveLeft()
         if event.key() == 68:
@@ -330,8 +370,10 @@ class GL3DPlot(QGLWidget):
             
         if event.key() == 16777235:
             self.cam.lookUp()
+            #self.cam.moveForward()
         if event.key() == 16777237:
             self.cam.lookDown()
+            #self.cam.moveBackward()
         if event.key() == 16777236:
             self.cam.lookRight()
         if event.key() == 16777234:
@@ -392,13 +434,6 @@ class VideoFrameDisplay(QGroupBox):
         self.mainBox.addWidget(self.pathLabel)
         self.mainBox.addWidget(self.imgBox)
         self.setLayout(self.mainBox)
-        '''
-        self.padding = QHBoxLayout()
-        self.padding.addStretch(1)
-        self.padding.addLayout(self.mainBox)
-        self.padding.addStretch(1)
-        self.setLayout(self.padding)
-        '''
         
     def updateSequence(self):
         self.vid = imageio.get_reader(VIDEO_DIR + self.videoFiles[CUR_SEQUENCE],'mp4')

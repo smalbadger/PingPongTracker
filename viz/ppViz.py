@@ -194,7 +194,6 @@ class Camera:
         self.updateFront()
         
     def lookLeft(self):
-        print(self.yaw)
         self.yaw -= 1
         self.updateFront()
         
@@ -491,8 +490,8 @@ class PPDashBoard(QWidget):
         self.mainBox.addLayout(self._3dPlotBox)
         self.mainBox.addLayout(self.vidBox)
         
-        self._3dPlotBox.addWidget(self.gl3dPlot)
         self._3dPlotBox.addLayout(self.buttonBox)
+        self._3dPlotBox.addWidget(self.gl3dPlot)
         
         self.vidBox.addWidget(self.vidFrame1)
         self.vidBox.addWidget(self.vidFrame2)

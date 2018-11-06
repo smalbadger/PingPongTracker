@@ -522,7 +522,7 @@ class PPDashBoard(QWidget):
         if CUR_FRAME == 0:
             updateFrame(NUMBER_OF_FRAMES-1)
         else:
-            updateFrame(CUR_FRAME + 1)
+            updateFrame(CUR_FRAME - 1)
         self.onFrameChange()
         
         

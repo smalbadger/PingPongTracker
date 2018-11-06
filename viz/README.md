@@ -44,4 +44,5 @@ Sequence - we have 10 'sequences' in total (couldn't think of a better name) a s
 Frame - the same frame number from all 3 cameras.
 
 
-
+# :beetle: Bug Reporting :beetle:
+If you run into a weird behavior, put your data set somewhere and message on the group chat. Don't try to save the day and fix the code. I'll admit, my coding standards aren't super great on this project.

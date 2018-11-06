@@ -1,3 +1,9 @@
+% Import external function
+addpath('./lineIntersect3D');
+
+% Set output FOLDER
+OUTPUT_PATH = './triangulation_output/';
+
 % Read File List
 FILE_LIST_NAME = 'FileList.csv';
 [num, FILE_VIDEO_LIST] = xlsread(FILE_LIST_NAME);
@@ -44,22 +50,27 @@ for trajectoryIdx = 1:1
 
         % Don't process if any coord pt is not defined
         if (any(isnan(frameData1), 2) || any(isnan(frameData2), 2) || any(isnan(frameData3), 2))
-            frame
-            break
+            result(rowIdx, :) = [frame, NaN, NaN, NaN];
+            continue
         end
 
-        u1 = data_1(rowIdx, COL_NUM_UNDISTORT_U);
-        v1 = data_1(rowIdx, COL_NUM_UNDISTORT_V);
+        dirToImg1 = get_direction_to_image_pt(frameData1(COL_NUM_UNDISTORT_U), frameData1(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{1})
+        imgCoord1 = get_image_coord(ROTATION_MATRICES{1}, TRANSLATION_VECTORS{1}, dirToImg1);
 
-        u2 = data_2(rowIdx, COL_NUM_UNDISTORT_U);
-        v2 = data_2(rowIdx, COL_NUM_UNDISTORT_V);
+        dirToImg2 = get_direction_to_image_pt(frameData2(COL_NUM_UNDISTORT_U), frameData2(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{2})
+        imgCoord2 = get_image_coord(ROTATION_MATRICES{2}, TRANSLATION_VECTORS{2}, dirToImg2);
 
-        u3 = data_3(rowIdx, COL_NUM_UNDISTORT_U);
-        v3 = data_3(rowIdx, COL_NUM_UNDISTORT_V);
+        dirToImg3 = get_direction_to_image_pt(frameData3(COL_NUM_UNDISTORT_U), frameData3(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{3})
+        imgCoord3 = get_image_coord(ROTATION_MATRICES{3}, TRANSLATION_VECTORS{3}, dirToImg3);
 
+        startPoints = [TRANSLATION_VECTORS{1}.'; TRANSLATION_VECTORS{2}.'; TRANSLATION_VECTORS{3}.'; ];
+        endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.';];
+
+        [P_intersect,distances] = lineIntersect3D(startPoints, endPoints);
+
+        result(rowIdx, :) = [ frame , P_intersect];
     end
-
-    % Process 2D to 3D
+    result
 
     % Write 3D data to file
 end
@@ -142,4 +153,14 @@ end
 
 function focal_length = get_focal_length(intrinsic_matrix_camera)
     focal_length = intrinsic_matrix_camera(1, 1);
+end
+
+% Returns direction vector to image point relative to camera coord
+function dirToImg = get_direction_to_image_pt(u, v, intrinsicMatrix)
+    dirToImg = inv(intrinsicMatrix) * [u; v; 1];
+end
+
+% Returns coordinates of image point relative to real world coordinates
+function imgCoord = get_image_coord(R, t, dirToImg)
+    imgCoord = t + inv(R) * dirToImg;
 end

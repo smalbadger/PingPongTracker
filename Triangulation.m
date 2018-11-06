@@ -31,7 +31,7 @@ COL_NUM_Z = 4;
 
 for trajectoryIdx = 1 : N_TRAJECTORIES
 % for trajectoryIdx = 1 : 1
-    figure
+    % figure
     % Read 2D data from file
     cam_file_1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
     cam_file_2 = FILE_ANNOTATION_LIST{trajectoryIdx, 2};
@@ -71,8 +71,7 @@ for trajectoryIdx = 1 : N_TRAJECTORIES
         [P_intersect,distances] = lineIntersect3D(startPoints, endPoints);
 
         result(rowIdx, :) = [ frame , P_intersect];
-        scatter3(P_intersect(1), P_intersect(2), P_intersect(3));
-        pause(0.01)
+        % scatter3(P_intersect(1), P_intersect(2), P_intersect(3));
     end
     output = [ colHeader; num2cell(result)];
     outputFilePath = strcat(OUTPUT_PATH, num2str(trajectoryIdx), '.xls');

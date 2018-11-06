@@ -30,6 +30,7 @@ from PySide2.QtCore import Qt
 import imageio
 import numpy as np
 import csv
+import traceback
 
 #############################################################################
 #                            Globals Begin                                  #
@@ -470,7 +471,10 @@ class PPDashBoard(QWidget):
         self.curSequence = QSpinBox()
         self.curSequence.setMinimum(0)
         self.curSequence.setMaximum(9)
-        self.totFrame = QLabel()
+        self.frTotLabel = QLabel("out of {}".format(NUMBER_OF_FRAMES))
+        self.seqTotLabel = QLabel("out of 10")
+        self.frLabel = QLabel("Frame:")
+        self.seqLabel = QLabel("Sequence:")
         self.backward = QPushButton('prev')
         self.forward = QPushButton('next')
         self.pause = QPushButton('pause')
@@ -481,6 +485,8 @@ class PPDashBoard(QWidget):
         self._3dPlotBox  = QVBoxLayout()
         self.vidBox      = QVBoxLayout()
         self.buttonBox   = QHBoxLayout()
+        self.frameSpin   = QVBoxLayout()
+        self.seqSpin     = QVBoxLayout()
         
         self.mainBox.addLayout(self._3dPlotBox)
         self.mainBox.addLayout(self.vidBox)
@@ -492,9 +498,18 @@ class PPDashBoard(QWidget):
         self.vidBox.addWidget(self.vidFrame2)
         self.vidBox.addWidget(self.vidFrame3)
         
-        self.buttonBox.addWidget(self.curFrame)
-        self.buttonBox.addWidget(self.curSequence)
-        self.buttonBox.addWidget(self.totFrame)
+        self.seqSpin.addWidget(self.seqLabel)
+        self.seqSpin.addWidget(self.curSequence)
+        self.seqSpin.addWidget(self.seqTotLabel)
+        self.buttonBox.addLayout(self.seqSpin)
+        self.buttonBox.addStretch(1)
+        
+        self.frameSpin.addWidget(self.frLabel)
+        self.frameSpin.addWidget(self.curFrame)
+        self.frameSpin.addWidget(self.frTotLabel)
+        self.buttonBox.addLayout(self.frameSpin)
+        self.buttonBox.addStretch(1)
+        
         self.buttonBox.addWidget(self.backward)
         self.buttonBox.addWidget(self.forward)
         self.buttonBox.addWidget(self.pause)
@@ -512,6 +527,10 @@ class PPDashBoard(QWidget):
         updateSequence(self.curSequence.value())
         self.curFrame.setMaximum(NUMBER_OF_FRAMES-1)
         self.curFrame.setValue(0)
+        self.frTotLabel.setText('out of {}'.format(NUMBER_OF_FRAMES))
+        self.vidFrame1.updateSequence()
+        self.vidFrame2.updateSequence()
+        self.vidFrame3.updateSequence()
         self.onFrameChange()
     
     def onCurFrameSpinBoxChange(self):
@@ -531,12 +550,12 @@ class PPDashBoard(QWidget):
         self.onFrameChange()
     
     def onFrameChange(self):
-        self.curFrame.setValue(CUR_FRAME)
+        if self.curFrame.value() != CUR_FRAME:
+            self.curFrame.setValue(CUR_FRAME)
         self.vidFrame1.updateImg()
         self.vidFrame2.updateImg()
         self.vidFrame3.updateImg()
         self.gl3dPlot.updateGL()
-        
             
 
 class PPApplication(QMainWindow):

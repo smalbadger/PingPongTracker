@@ -16,7 +16,7 @@ Welcome to the visualization software for the final project. This document descr
 The visualization tool can be used for visualizing the calculated 3D coordinates of the ball (and plot trajectoy), and show where the ping pong ball was found in each frame.
 
 1. Run the program: python3 ppViz.py
-1. Notice that there are 3 camera frames on the right and a big 3D viewer box on the left with controls underneath it. 
+1. Notice that there are 3 video frames on the right and a big 3D viewer box on the left with controls above it. 
     - The buttons are for controlling the current frame. Play and pause should let the camera roll (both don't work right now though)
     - The left spinbox allows the user to go to a specific frame.
     - The right spinbox allows the user to change the video sequence.

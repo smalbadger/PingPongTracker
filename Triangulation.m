@@ -74,7 +74,7 @@ for trajectoryIdx = 1 : N_TRAJECTORIES
         % scatter3(P_intersect(1), P_intersect(2), P_intersect(3));
     end
     output = [ colHeader; num2cell(result)];
-    outputFilePath = strcat(OUTPUT_PATH, num2str(trajectoryIdx), '.xls');
+    outputFilePath = strcat(OUTPUT_PATH, extractAfter(cam_file_1,'/'));
     xlswrite(outputFilePath, output)
 
     % Write 3D data to file

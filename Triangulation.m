@@ -30,6 +30,8 @@ COL_NUM_Y = 3;
 COL_NUM_Z = 4;
 
 for trajectoryIdx = 1 : N_TRAJECTORIES
+% for trajectoryIdx = 1 : 1
+    figure
     % Read 2D data from file
     cam_file_1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
     cam_file_2 = FILE_ANNOTATION_LIST{trajectoryIdx, 2};
@@ -69,6 +71,8 @@ for trajectoryIdx = 1 : N_TRAJECTORIES
         [P_intersect,distances] = lineIntersect3D(startPoints, endPoints);
 
         result(rowIdx, :) = [ frame , P_intersect];
+        scatter3(P_intersect(1), P_intersect(2), P_intersect(3));
+        pause(0.01)
     end
     output = [ colHeader; num2cell(result)];
     outputFilePath = strcat(OUTPUT_PATH, num2str(trajectoryIdx), '.xls');
@@ -150,6 +154,12 @@ function TRANSLATION_VECTORS = get_translation_vectors()
         -.39533167111966377;
         2.2979640654841407;
         ];
+
+    % As stated in the email, need to change to correct translation matrix
+    Rs = get_rotation_matrices();
+    t1 = -inv(Rs{1}) * t1;
+    t2 = -inv(Rs{2}) * t2;
+    t3 = -inv(Rs{3}) * t3;
     TRANSLATION_VECTORS = {t1, t2, t3};
 end
 

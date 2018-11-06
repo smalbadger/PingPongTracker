@@ -75,7 +75,7 @@ for trajectoryIdx = 1 : N_TRAJECTORIES
     end
     % comet3(result(:, 2), result(:, 3), result(:, 4));
     output = [ colHeader; num2cell(result)];
-    outputFilePath = strcat(OUTPUT_PATH, extractAfter(cam_file_1,'/'));
+    outputFilePath = strcat(OUTPUT_PATH, extractBefore(extractAfter(cam_file_1,'/'), '.csv'), '.xls');
     xlswrite(outputFilePath, output)
 
     % Write 3D data to file

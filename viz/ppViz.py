@@ -48,7 +48,7 @@ ANGLE2 = 0
 PLAYING = False
 CUR_SEQUENCE = 0
 CUR_FRAME = 0
-FRAME_RATE = .25
+FRAME_RATE = 10
 NUMBER_OF_FRAMES = 1
 PLAYING = False
 VIDEO_DIR = "../TestVideos/"
@@ -555,6 +555,7 @@ class PPDashBoard(QWidget):
     def onPause(self):
         global PLAYING
         try:
+            PLAYING = False
             self.playThread.join()
         except Exception as e:
             print(e)
@@ -584,23 +585,26 @@ class PPDashBoard(QWidget):
 class PlayThread(Thread):
     def __init__(self, slave):
         Thread.__init__(self)
-        self._stopevent = Event()
         self.slave = slave
         
     def run(self):
         global PLAYING
         global FRAME_RATE
         global CUR_FRAME
-        
+        self.done = False
         PLAYING = True
         while PLAYING:
-            self.slave.curFrame.setValue(CUR_FRAME+1)
-            #updateFrame(CUR_FRAME + 1)
-            #self.slave.onFrameChange()
-            self._stopevent.wait(FRAME_RATE)
+            curVal = self.slave.curFrame.value()
+            if curVal == NUMBER_OF_FRAMES-1:
+                self.slave.curFrame.setValue(0)
+            else:
+                self.slave.curFrame.setValue(CUR_FRAME+1)
+            time.sleep(1/FRAME_RATE)
+        self.done = True
             
     def join(self):
-        #self._stopevent.set()
+        while not self.done:
+            pass
         Thread.join(self, None)
             
 

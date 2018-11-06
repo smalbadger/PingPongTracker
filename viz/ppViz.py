@@ -39,6 +39,9 @@ import traceback
 #############################################################################
 #                            Globals Begin                                  #
 #############################################################################
+SHIFT = False   # toggle showing all previous ball positions or just the current one.
+CTRL  = False
+
 MOUSE_BUTTON = None
 MOVING = None
 START_X = None
@@ -122,7 +125,7 @@ def updateSequence(seqNum):
 def updateFrame(frameNum):
     global CUR_FRAME    
     CUR_FRAME = frameNum % NUMBER_OF_FRAMES
-    print("CUR_FRAME: {}".format(CUR_FRAME))
+    #print("CUR_FRAME: {}".format(CUR_FRAME))
 #############################################################################
 #                            Globals End                                    #
 #############################################################################
@@ -145,7 +148,7 @@ class Camera:
         self.theta = 0
         self.phi = 0
         self.center = np.array([0.0,0.0,0.0])
-        self.pos = np.array([0.0,0.0,10.0])
+        self.pos = np.array([0.0,0.0,6.0])
         self.front = np.array([0.0,0.0,-1.0])
         self.up = np.array([0.0,1.0, 0.0])
         self.fovy        = 40.0 
@@ -247,6 +250,7 @@ class GL3DPlot(QGLWidget):
     def drawBalls(self):
         global READER_3D
         global CUR_3D_FILE
+        global SHIFT
         if READER_3D != None:
             CUR_3D_FILE.seek(0)
             for row in READER_3D:
@@ -264,6 +268,8 @@ class GL3DPlot(QGLWidget):
                 if frame == CUR_FRAME:
                     glColor3f(1, 0, 0)
                 else:
+                    if SHIFT:
+                        continue
                     glColor3f(1,.5, 0)
                 
                 glPushMatrix();
@@ -360,7 +366,16 @@ class GL3DPlot(QGLWidget):
                   center[0], center[1], center[2],
                   c.up[0],  c.up[1],  c.up[2])
         
-    def keyPressEvent(self, event):        
+    def keyPressEvent(self, event):
+        global SHIFT
+        global CTRL
+        #print(event.key())
+              
+        if event.key() == 16777248:
+            SHIFT = not SHIFT
+        if event.key() == 16777249:
+            CTRL = not CTRL
+              
         if event.key() == 87:
             self.cam.moveForward()
             #self.cam.moveUp()
@@ -476,6 +491,8 @@ class PPDashBoard(QWidget):
         self.frLabel = QLabel("{}/{}".format(CUR_FRAME+1, NUMBER_OF_FRAMES))
         self.frNext = QPushButton('>')
         self.frNext.setFixedSize(btnSize,btnSize)
+        self.frReset = QPushButton('reset')
+        self.frReset.setFixedHeight(btnSize*2)
         self.frPause = QPushButton('pause')
         self.frPause.setFixedHeight(btnSize*2)
         self.frPlay = QPushButton('play')
@@ -532,6 +549,7 @@ class PPDashBoard(QWidget):
         self.buttonBox.addLayout(self.seqCtrl)
         self.buttonBox.addStretch(1)
         self.buttonBox.addLayout(self.frCtrl)
+        self.buttonBox.addWidget(self.frReset)
         self.buttonBox.addStretch(1)
         self.buttonBox.addWidget(self.frPause)
         self.buttonBox.addWidget(self.frPlay)
@@ -541,6 +559,7 @@ class PPDashBoard(QWidget):
     def createActions(self):
         self.frNext.clicked.connect(self.onFrameNext)
         self.frPrev.clicked.connect(self.onFramePrev)
+        self.frReset.clicked.connect(self.onFrameReset)
         self.seqNext.clicked.connect(self.onSequenceNext)
         self.seqPrev.clicked.connect(self.onSequencePrev)
         self.frPlay.clicked.connect(self.onPlay)
@@ -565,6 +584,10 @@ class PPDashBoard(QWidget):
         
     def onFramePrev(self):
         updateFrame(CUR_FRAME - 1)
+        self.onFrameChange()
+        
+    def onFrameReset(self):
+        updateFrame(0)
         self.onFrameChange()
         
     def onSequenceNext(self):

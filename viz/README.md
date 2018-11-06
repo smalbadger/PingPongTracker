@@ -17,19 +17,17 @@ The visualization tool can be used for visualizing the calculated 3D coordinates
 
 1. Run the program: python3 ppViz.py
 1. Notice that there are 3 video frames on the right and a big 3D viewer box on the left with controls above it. 
-    - The buttons are for controlling the current frame. Play and pause should let the camera roll (both don't work right now though)
-    - The left spinbox allows the user to go to a specific frame.
-    - The right spinbox allows the user to change the video sequence.
-    - The prev and next buttons allow the user to go backward or forward one frame respectively.
+    - Play and pause are for starting and stopping the video.
+    - there are prev and next ('<' and '>' respectively) for both sequence and frame control.
 1. The 3D viewer takes some keyboard controls:
     - W: move camera forward
     - S: move camera backward
     - A: move camera left
     - D: move camera right
     - ARROW KEYS: look up, down, left, and right. (There's a bug which doesn't allow the camera to rotate more than 180 degrees total.)
-    - Note: moving is wonky right now. I'll try to fix it soon.
+        - Note: moving is wonky right now. I'll try to fix it soon.
 1. There are some keyboard controls that control both video and 3D viewer:
-    - SHIFT: shows location of ball in all frames before and including the current frame. (coming soon)
+    - SHIFT: shows location of ball in all frames before and including the current frame. Toggling it will show only the current location of the ball.
     - CTRL: Not yet assigned to anything, but some cool feature coming soon.
 1. Where do you need to put your files?
     - Store all of your files for 3D points in one directory and all files containing 2D points in another directory. Make sure you have a consistent naming convention for each of the files.

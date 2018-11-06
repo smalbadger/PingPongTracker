@@ -8,11 +8,10 @@ Description:
 '''
 
 import os
-import time
-import threading
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 from PySide2.QtWidgets import QApplication, QMainWindow
 from PySide2.QtOpenGL import *
 
@@ -26,7 +25,7 @@ from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QGroupBox
 from PySide2.QtGui import QPixmap
 from PySide2.QtGui import QImage
-from PySide2.QtCore import QThread
+from PySide2.QtCore import Qt
 
 import imageio
 import numpy as np
@@ -34,6 +33,8 @@ import numpy as np
 #############################################################################
 #                            Globals Begin                                  #
 #############################################################################
+SHIFT = False
+CTRL  = False
 CUR_SEQUENCE = 0
 CUR_FRAME = 0
 FRAME_RATE = .25
@@ -122,19 +123,80 @@ def getRotation(a, b):
 #############################################################################
 #                           Utility function end
 #############################################################################
-
-
+class Camera:
+    def __init__(self):
+        self.speed = 0.1
+        self.pitch = 0
+        self.yaw   = 0
+        self.pos = np.array([0.0,0.0,10.0])
+        self.front = np.array([0.0,0.0,-1.0])
+        self.up = np.array([0.0,1.0, 0.0])
+        self.fovy        = 40.0 
+        self.aspectRatio = 1.0
+        self.zNear       = 0 
+        self.zFar        = 10
+        
+    def moveForward(self):
+        self.pos += self.speed * self.front
+        
+    def moveBackward(self):
+        self.pos -= self.speed * self.front
+        
+    def moveLeft(self):
+        self.pos -= np.linalg.norm(np.cross(self.front, self.up)) * self.speed
+        
+    def moveRight(self):
+        self.pos += np.linalg.norm(np.cross(self.front, self.up)) * self.speed
+        
+    def lookUp(self):
+        self.pitch += 1
+        self.updateFront()
+        
+    def lookDown(self):
+        self.pitch -= 1
+        self.updateFront()
+        
+    def lookLeft(self):
+        self.yaw -= 1
+        self.updateFront()
+        
+    def lookRight(self):
+        self.yaw += 1
+        self.updateFront()
+        
+    def updateFront(self):
+        self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.cos(np.deg2rad(self.yaw))
+        self.front[1] = np.sin(np.deg2rad(self.pitch))
+        self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.sin(np.deg2rad(self.yaw))
+        
+        
 
 class GL3DPlot(QGLWidget):
     def __init__(self, parent):
         QGLWidget.__init__(self, parent)
-        #self.setMinimumSize(500, 500)
+        self.setFocusPolicy(Qt.TabFocus)
+        self.cam = Camera()
         
     def paintGL(self):
         ''' Drawing routine '''
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
+        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+        self.lookAt()
         
+        #draw x, y, and z lines
+        glColor4f(0,0,0,1)
+        glBegin(GL_LINES)
+        glVertex3f(0, 0,  100)
+        glVertex3f(0, 0, -100)
+        glVertex3f(0,  100, 0)
+        glVertex3f(0, -100, 0)
+        glVertex3f( 100, 0, 0)
+        glVertex3f(-100, 0, 0)
+        glEnd()
+        
+        
+        #draw camera i, j, and k vectors
         glBegin(GL_LINES)
         glColor4f(1, 0, 0,.3)
         for i in (c1, R1[0,:], c2, R2[0,:], c3, R3[0,:]):
@@ -148,21 +210,7 @@ class GL3DPlot(QGLWidget):
         for i in (c1, R1[2,:], c2, R2[2,:], c3, R3[2,:]):
             glVertex3f(i[0], i[1], i[2])
         glEnd()
-        '''
-        glColor3f(0.5,1,1)
-        for i1, i2 in ((c1, R1[0,:]), (c2, R2[0,:]), (c3, R3[0,:])):
-            glPushMatrix()
-            glTranslatef(i1[0], i1[1], i1[2])
-            alpha = np.dot(i2, np.array([0,0,1]))/(np.linalg.norm(i2))
-            about = np.cross(i2, np.array([0,0,1]))
-            
-            glRotatef(np.arccos(alpha), about[0], about[1], about[2])
-            glBegin(GL_LINES)
-            glVertex3f(0,0,0)
-            glVertex3f(0,1,0)
-            glEnd()
-            glPopMatrix
-        '''
+        
         glEnableClientState(GL_VERTEX_ARRAY)
         
         glFlush()
@@ -171,6 +219,7 @@ class GL3DPlot(QGLWidget):
         '''
         Resize the GL window 
         '''
+        print('Resizing GL')
         glViewport(0, 0, w, h)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -180,12 +229,53 @@ class GL3DPlot(QGLWidget):
         '''
         Initialize GL
         '''
-        # set viewing projection
+        print("Initializing GL")
         glClearColor(1.0, 1.0, 1.0, 1.0)
         glClearDepth(1.0)
+        glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-3, 3, -3, 3, -3, 3);
         
+        glMatrixMode(GL_MODELVIEW)
+        self.lookAt()
+        
+    def lookAt(self):
+        c = self.cam
+        center = c.pos + c.front
+        gluLookAt(c.pos[0], c.pos[1], c.pos[2], 
+                  center[0], center[1], center[2],
+                  c.up[0],  c.up[1],  c.up[2])
+        
+    def keyPressEvent(self, event):
+        global SHIFT
+        global CTRL
+        
+        if event.key() == 16777248:
+            SHIFT = not SHIFT
+        if event.key() == 16777249:
+            CTRL = not CTRL
+        
+        if event.key() == 70:
+            self.fovy += 1 
+        
+        if event.key() == 87:
+            self.cam.moveForward()
+        if event.key() == 83:
+            self.cam.moveBackward()
+        if event.key() == 65:
+            self.cam.moveLeft()
+        if event.key() == 68:
+            self.cam.moveRight()
+            
+        if event.key() == 16777235:
+            self.cam.lookUp()
+        if event.key() == 16777237:
+            self.cam.lookDown()
+        if event.key() == 16777236:
+            self.cam.lookRight()
+        if event.key() == 16777234:
+            self.cam.lookLeft()
+        
+        self.updateGL()
         
 class VideoFrameDisplay(QGroupBox):
     def __init__(self, cName, parent):

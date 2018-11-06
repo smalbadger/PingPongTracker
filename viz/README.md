@@ -40,8 +40,8 @@ The visualization tool can be used for visualizing the calculated 3D coordinates
     - Coming soon, I'll make a file chooser widget so you don't have to mess with the code.
     
 ### Terminology
-Sequence - we have 10 'sequences' in total (couldn't think of a better name) a sequence is the group of 3 videos that show the SAME ball launch.
-Frame - the same frame number from all 3 cameras.
+* Sequence - we have 10 'sequences' in total (couldn't think of a better name) a sequence is the group of 3 videos that show the SAME ball launch.
+* Frame - the same frame number from all 3 cameras.
 
 
 # :beetle: Bug Reporting :beetle:

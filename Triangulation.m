@@ -73,6 +73,7 @@ for trajectoryIdx = 1 : N_TRAJECTORIES
         result(rowIdx, :) = [ frame , P_intersect];
         % scatter3(P_intersect(1), P_intersect(2), P_intersect(3));
     end
+    % comet3(result(:, 2), result(:, 3), result(:, 4));
     output = [ colHeader; num2cell(result)];
     outputFilePath = strcat(OUTPUT_PATH, extractAfter(cam_file_1,'/'));
     xlswrite(outputFilePath, output)

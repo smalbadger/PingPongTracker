@@ -565,7 +565,7 @@ class PPApplication(QMainWindow):
         updateSequence(0)
         widget = PPDashBoard(self)
         self.setCentralWidget(widget)
-        self.showMaximized()
+        #self.showMaximized()
         self.setWindowTitle("Ping Pong Flight Visualization")
 
 

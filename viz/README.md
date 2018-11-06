@@ -5,11 +5,11 @@ Welcome to the visualization software for the final project. This document descr
 1. clone this entire repository somewhere on your system. It was developed on Ubuntu 18.04, so something similar is your best bet. 
 1. Make sure you have python3
 1. run the following commands in the given order (there may be some others as well):
-    > pip3 install PySide2
-    > pip3 install numpy
-    > pip3 install imageio
-    > pip3 install PyOpenGL PyOpenGL_accelerate
-    > sudo apt-get install python-opengl
+    - > pip3 install PySide2
+    - > pip3 install numpy
+    - > pip3 install imageio
+    - > pip3 install PyOpenGL PyOpenGL_accelerate
+    - > sudo apt-get install python-opengl
     * note: I use pip3, but if you don't have it, try just pip.
 
 ## Usage

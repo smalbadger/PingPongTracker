@@ -29,8 +29,7 @@ COL_NUM_X = 2;
 COL_NUM_Y = 3;
 COL_NUM_Z = 4;
 
-% for trajectoryIdx = 1 : N_TRAJECTORIES
-for trajectoryIdx = 1:1
+for trajectoryIdx = 1 : N_TRAJECTORIES
     % Read 2D data from file
     cam_file_1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
     cam_file_2 = FILE_ANNOTATION_LIST{trajectoryIdx, 2};
@@ -39,8 +38,9 @@ for trajectoryIdx = 1:1
     [data_2, text] = xlsread(cam_file_2);
     [data_3, text] = xlsread(cam_file_3);
 
-    nRows = size(data_1, 1)
+    nRows = size(data_1, 1);
     result = zeros(nRows, 4);
+    colHeader = {'frame', 'x', 'y', 'z'};
 
     for rowIdx = 1:nRows
         frameData1 = data_1(rowIdx, :);
@@ -54,13 +54,13 @@ for trajectoryIdx = 1:1
             continue
         end
 
-        dirToImg1 = get_direction_to_image_pt(frameData1(COL_NUM_UNDISTORT_U), frameData1(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{1})
+        dirToImg1 = get_direction_to_image_pt(frameData1(COL_NUM_UNDISTORT_U), frameData1(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{1});
         imgCoord1 = get_image_coord(ROTATION_MATRICES{1}, TRANSLATION_VECTORS{1}, dirToImg1);
 
-        dirToImg2 = get_direction_to_image_pt(frameData2(COL_NUM_UNDISTORT_U), frameData2(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{2})
+        dirToImg2 = get_direction_to_image_pt(frameData2(COL_NUM_UNDISTORT_U), frameData2(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{2});
         imgCoord2 = get_image_coord(ROTATION_MATRICES{2}, TRANSLATION_VECTORS{2}, dirToImg2);
 
-        dirToImg3 = get_direction_to_image_pt(frameData3(COL_NUM_UNDISTORT_U), frameData3(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{3})
+        dirToImg3 = get_direction_to_image_pt(frameData3(COL_NUM_UNDISTORT_U), frameData3(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{3});
         imgCoord3 = get_image_coord(ROTATION_MATRICES{3}, TRANSLATION_VECTORS{3}, dirToImg3);
 
         startPoints = [TRANSLATION_VECTORS{1}.'; TRANSLATION_VECTORS{2}.'; TRANSLATION_VECTORS{3}.'; ];
@@ -70,7 +70,9 @@ for trajectoryIdx = 1:1
 
         result(rowIdx, :) = [ frame , P_intersect];
     end
-    result
+    output = [ colHeader; num2cell(result)];
+    outputFilePath = strcat(OUTPUT_PATH, num2str(trajectoryIdx), '.xls');
+    xlswrite(outputFilePath, output)
 
     % Write 3D data to file
 end
@@ -149,10 +151,6 @@ function TRANSLATION_VECTORS = get_translation_vectors()
         2.2979640654841407;
         ];
     TRANSLATION_VECTORS = {t1, t2, t3};
-end
-
-function focal_length = get_focal_length(intrinsic_matrix_camera)
-    focal_length = intrinsic_matrix_camera(1, 1);
 end
 
 % Returns direction vector to image point relative to camera coord

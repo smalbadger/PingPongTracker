@@ -29,9 +29,11 @@ COL_NUM_X = 2;
 COL_NUM_Y = 3;
 COL_NUM_Z = 4;
 
+figure
+drawCamAxis();
+
 for trajectoryIdx = 1:N_TRAJECTORIES
     % for trajectoryIdx = 1 : 1
-    % figure
     % Read 2D data from file
     cam_file_1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
     cam_file_2 = FILE_ANNOTATION_LIST{trajectoryIdx, 2};
@@ -73,18 +75,19 @@ for trajectoryIdx = 1:N_TRAJECTORIES
         result(rowIdx, :) = [frame, P_intersect];
     end
 
-    % comet3(result(:, 2), result(:, 3), result(:, 4));
+    comet3(result(:, 2), result(:, 3), result(:, 4));
     output = [colHeader; num2cell(result)];
     outputFilePath = strcat(OUTPUT_PATH, extractAfter(cam_file_1, '/'));
 
     fid = fopen(outputFilePath, 'w');
-    fprintf(fid, '%s,', colHeader{1:3}) ;
-    fprintf(fid, '%s\n', colHeader{4}) ;
+    fprintf(fid, '%s,', colHeader{1:3});
+    fprintf(fid, '%s\n', colHeader{4});
     fclose(fid);
     dlmwrite(outputFilePath, result, '-append');
 
     % Write 3D data to file
 end
+
 
 % ================================================ Helper Functions ================================================
 
@@ -176,4 +179,30 @@ end
 % Returns coordinates of image point relative to real world coordinates
 function imgCoord = get_image_coord(R, t, dirToImg)
     imgCoord = t + inv(R) * dirToImg;
+end
+
+function drawCamAxis()
+    ts = get_translation_vectors();
+    Rs = get_rotation_matrices();
+
+    for idx = 1:3
+        R = Rs{idx};
+        t = ts{idx};
+        point1 = R(1, :) + t.';
+        point2 = R(2, :) + t.';
+        point3 = R(3, :) + t.';
+        origin = t.';
+        hold on;
+        plot3([origin(1) point1(1)], [origin(2) point1(2)], [origin(3) point1(3)], 'LineWidth', 5, 'Color', 'red');
+        plot3([origin(1) point2(1)], [origin(2) point2(2)], [origin(3) point2(3)], 'LineWidth', 5, 'Color', 'green');
+        plot3([origin(1) point3(1)], [origin(2) point3(2)], [origin(3) point3(3)], 'LineWidth', 5, 'Color', 'blue');
+        grid on;
+        xlabel('X');
+        ylabel('Y');
+        zlabel('Z');
+        set(gca,'CameraPosition',[2 2 2]);
+        text(t(1), t(2), t(3), strcat('CAM ', num2str(idx)));
+        hold on
+    end
+
 end

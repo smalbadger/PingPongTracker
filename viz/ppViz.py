@@ -15,17 +15,20 @@ from threading import Event
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-from PySide2.QtWidgets import QApplication, QMainWindow
-from PySide2.QtOpenGL import *
 
+from PySide2.QtOpenGL import *
+from PySide2.QtWidgets import QApplication
+from PySide2.QtWidgets import QMainWindow
 from PySide2.QtWidgets import QWidget
 from PySide2.QtWidgets import QPushButton
 from PySide2.QtWidgets import QHBoxLayout
 from PySide2.QtWidgets import QVBoxLayout
+from PySide2.QtWidgets import QGridLayout
 from PySide2.QtWidgets import QLabel
 from PySide2.QtWidgets import QLineEdit
 from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QGroupBox
+from PySide2.QtWidgets import QSlider
 from PySide2.QtGui import QPixmap
 from PySide2.QtGui import QImage
 from PySide2.QtGui import QPalette
@@ -691,6 +694,96 @@ class PlayThread(Thread):
             pass
         Thread.join(self, None)
             
+            
+class SettingsMenu(QMainWindow):
+    '''popup window for user to change settings'''
+    def __init__(self):
+        QMainWindow.__init__(self)
+        self.createElements()
+        self.createLayout()
+        self.createActions()
+        
+    def createElements(self):
+        global VID_DIR
+        global BALL_3D_COORDS_DIR
+        global BALL_2D_COORDS_DIR
+        global FRAME_RATE
+        
+        self.videoFileDirLabel = QLabel("Video Files Location: ")
+        self.videoFileDirEdit  = QLineEdit()
+        self.videoFileDirEdit.setText(VID_DIR)
+        self.videofileDirBtn = QPushButton("change")
+    
+        self._3DFileDirLabel = QLabel("3D Files Location: ")
+        self._3DFileDirEdit  = QLineEdit()
+        self._3DFileDirEdit.setText(BALL_3D_COORDS_DIR)
+        self._3DfileDirBtn = QPushButton("change")
+        
+        self._2DFileDirLabel = QLabel("2D Files Location: ")
+        self._2DFileDirEdit  = QLineEdit()
+        self._2DFileDirEdit.setText(BALL_2D_COORDS_DIR)
+        self._2DfileDirBtn = QPushButton("change")
+        
+        self.frameRateLabel = QLabel("Frame Rate: ")
+        self.frameRateLabel_2 = QLabel(str(FRAME_RATE))
+        self.frameRateChanger = QSlider()
+        self.frameRateChanger.setMinimum(1)
+        self.frameRateChanger.setMaximum(10)
+        self.frameRateChanger.setTickInterval(0.5)
+        
+        #add toggle buttons for x, y, and z axis grids here
+        
+        
+    def createLayout(self):
+        self.mainLayout = QGridLayout()
+        
+        self.mainLayout.addWidget(self.videoFileDirLabel)
+        self.mainLayout.addWidget(self.videoFileDirEdit)
+        self.mainLayout.addWidget(self.videoFileDirBtn)
+        
+        self.mainLayout.addWidget(self._3DFileDirLabel)
+        self.mainLayout.addWidget(self._3DFileDirEdit)
+        self.mainLayout.addWidget(self._3DFileDirBtn)
+        
+        self.mainLayout.addWidget(self._2DFileDirLabel)
+        self.mainLayout.addWidget(self._2DFileDirEdit)
+        self.mainLayout.addWidget(self._2DFileDirBtn)
+        
+        self.mainLayout.addWidget(self.frameRateLabel)
+        self.mainLayout.addWidget(self.frameRateLabel2)
+        self.mainLayout.addWidget(self.frameRateChanger)
+        
+    def createActions(self):
+        self.videoFileDirBtn.clicked.connect(onVideoFileDirChanged)
+        self._3DFileDirBtn.clicked.connect(on_3DFileDirChanged)
+        self._2DFileDirBtn.clicked.connect(on_2DFileDirChanged)
+        self.frameRateChanger.moved.connect(onFrameRateChanged)
+        
+    def onVideoFileDirChanged(self):
+        global VID_DIR
+        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        VID_DIR = self.videoFileDirEdit.text()
+        
+    def on_3DFileDirChanged(self):
+        global BALL_3D_COORDS_DIR
+        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        BALL_3D_COORDS_DIR = self._3DFileDirEdit.text()
+        
+    def on_2DFileDirChanged(self):
+        global BALL_2D_COORDS_DIR
+        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        BALL_2D_COORDS_DIR = self._2DFileDirEdit.text()
+        
+    def checkPathValidity(self, path, expectedNumFiles):
+        try:
+            files = sys.listDir(path)
+            if len(files) == expectedNumFiles:
+                return True
+            else:
+                return False
+        except:
+            return False
+        return False
 
 class PPApplication(QMainWindow):
     ''' main window for the Ping Pong Application '''

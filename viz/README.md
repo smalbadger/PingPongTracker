@@ -28,7 +28,8 @@ The visualization tool can be used for visualizing the calculated 3D coordinates
         - Note: moving is wonky right now. I'll try to fix it soon.
 1. There are some keyboard controls that control both video and 3D viewer:
     - SHIFT: shows location of ball in all frames before and including the current frame. Toggling it will show only the current location of the ball.
-    - CTRL: Not yet assigned to anything, but some cool feature coming soon.
+    - CTRL: toggles background.
+        - Note: if SHIFT and CTRL are both toggled on and the ball cannot be triangulated in the current frame, all video frames and 3D viewer will be blank.
 1. Where do you need to put your files?
     - Store all of your files for 3D points in one directory and all files containing 2D points in another directory. Make sure you have a consistent naming convention for each of the files.
     - For 3D points, there should be 10 files in a directory and when they're sorted alphabetically, they should be in the same order as the video sequences. Look at the '../Test3DCoords/' directory as an example.

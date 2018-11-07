@@ -692,10 +692,14 @@ class PPApplication(QMainWindow):
     def __init__(self):
         super(PPApplication, self).__init__()
         updateSequence(0)
-        widget = PPDashBoard(self)
-        self.setCentralWidget(widget)
-        #self.showMaximized()
+        self.dash = PPDashBoard(self)
+        self.setCentralWidget(self.dash)
+        self.showMaximized()
         self.setWindowTitle("Ping Pong Flight Visualization")
+
+    def closeEvent(self, event):
+        self.dash.onPause()
+        sys.exit(0)
 
 
 if __name__ == "__main__":

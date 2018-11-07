@@ -530,7 +530,8 @@ class GL3DPlot(QGLWidget):
         if key == 89:
             self.cam.changeView('y')
         if key == 90:
-            self.cam.changeView('z')
+            #self.cam.changeView('z')
+            pass
         if key == 49:
             self.cam.changeView('1')
         if key == 50:

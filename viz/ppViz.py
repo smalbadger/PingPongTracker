@@ -8,6 +8,9 @@ Description:
 '''
 
 import os
+import time
+from threading import Thread
+from threading import Event
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -42,7 +45,7 @@ START_Y = None
 ANGLE = 0
 ANGLE2 = 0
 
-
+PLAYING = False
 CUR_SEQUENCE = 0
 CUR_FRAME = 0
 FRAME_RATE = .25
@@ -194,7 +197,6 @@ class Camera:
         self.updateFront()
         
     def lookLeft(self):
-        print(self.yaw)
         self.yaw -= 1
         self.updateFront()
         
@@ -491,8 +493,8 @@ class PPDashBoard(QWidget):
         self.mainBox.addLayout(self._3dPlotBox)
         self.mainBox.addLayout(self.vidBox)
         
-        self._3dPlotBox.addWidget(self.gl3dPlot)
         self._3dPlotBox.addLayout(self.buttonBox)
+        self._3dPlotBox.addWidget(self.gl3dPlot)
         
         self.vidBox.addWidget(self.vidFrame1)
         self.vidBox.addWidget(self.vidFrame2)
@@ -520,6 +522,8 @@ class PPDashBoard(QWidget):
     def createActions(self):
         self.forward.clicked.connect(self.onForward)
         self.backward.clicked.connect(self.onBackward)
+        self.play.clicked.connect(self.onPlay)
+        self.pause.clicked.connect(self.onPause)
         self.curFrame.valueChanged.connect(self.onCurFrameSpinBoxChange)
         self.curSequence.valueChanged.connect(self.onSequenceChange)
     
@@ -544,10 +548,30 @@ class PPDashBoard(QWidget):
             updateFrame(CUR_FRAME - 1)
         self.onFrameChange()
         
-        
     def onForward(self):
         updateFrame(CUR_FRAME + 1)
         self.onFrameChange()
+        
+    def onPause(self):
+        global PLAYING
+        try:
+            self.playThread.join()
+        except Exception as e:
+            print(e)
+        
+    def onPlay(self):
+        self.playThread = PlayThread(self)
+        self.playThread.start()
+        
+    def roll(self):
+        global PLAYING
+        global FRAME_RATE
+        global CUR_FRAME
+        
+        PLAYING = True
+        while PLAYING:
+            updateFrame(CUR_FRAME + 1)
+            time.sleep(FRAME_RATE)
     
     def onFrameChange(self):
         if self.curFrame.value() != CUR_FRAME:
@@ -557,6 +581,28 @@ class PPDashBoard(QWidget):
         self.vidFrame3.updateImg()
         self.gl3dPlot.updateGL()
             
+class PlayThread(Thread):
+    def __init__(self, slave):
+        Thread.__init__(self)
+        self._stopevent = Event()
+        self.slave = slave
+        
+    def run(self):
+        global PLAYING
+        global FRAME_RATE
+        global CUR_FRAME
+        
+        PLAYING = True
+        while PLAYING:
+            self.slave.curFrame.setValue(CUR_FRAME+1)
+            #updateFrame(CUR_FRAME + 1)
+            #self.slave.onFrameChange()
+            self._stopevent.wait(FRAME_RATE)
+            
+    def join(self):
+        #self._stopevent.set()
+        Thread.join(self, None)
+            
 
 class PPApplication(QMainWindow):
     ''' main window for the Ping Pong Application '''
@@ -565,7 +611,7 @@ class PPApplication(QMainWindow):
         updateSequence(0)
         widget = PPDashBoard(self)
         self.setCentralWidget(widget)
-        self.showMaximized()
+        #self.showMaximized()
         self.setWindowTitle("Ping Pong Flight Visualization")
 
 

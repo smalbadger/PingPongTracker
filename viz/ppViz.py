@@ -28,7 +28,11 @@ from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QGroupBox
 from PySide2.QtGui import QPixmap
 from PySide2.QtGui import QImage
+from PySide2.QtGui import QPalette
 from PySide2.QtCore import Qt
+from PySide2.QtCore import Signal
+import PySide2.QtGui as QtGui
+import PySide2.QtCore as QtCore
 
 import imageio
 import numpy as np
@@ -38,6 +42,9 @@ import traceback
 #############################################################################
 #                            Globals Begin                                  #
 #############################################################################
+SHIFT = False   # toggle showing all previous ball positions or just the current one.
+CTRL  = False
+
 MOUSE_BUTTON = None
 MOVING = None
 START_X = None
@@ -48,17 +55,17 @@ ANGLE2 = 0
 PLAYING = False
 CUR_SEQUENCE = 0
 CUR_FRAME = 0
-FRAME_RATE = .25
+FRAME_RATE = 5
 NUMBER_OF_FRAMES = 1
 PLAYING = False
 VIDEO_DIR = "../TestVideos/"
 
-BALL_2D_COORDS_DIR = ""
+BALL_2D_COORDS_DIR = "../Annotation/"
 CUR_2D_FILE = None
 READER_2D = None
 
 
-BALL_3D_COORDS_DIR = "../Test3DCoords/"
+BALL_3D_COORDS_DIR = "../triangulation_output/"
 CUR_3D_FILE = None
 READER_3D = None
 
@@ -121,7 +128,7 @@ def updateSequence(seqNum):
 def updateFrame(frameNum):
     global CUR_FRAME    
     CUR_FRAME = frameNum % NUMBER_OF_FRAMES
-    print("CUR_FRAME: {}".format(CUR_FRAME))
+    #print("CUR_FRAME: {}".format(CUR_FRAME))
 #############################################################################
 #                            Globals End                                    #
 #############################################################################
@@ -144,7 +151,7 @@ class Camera:
         self.theta = 0
         self.phi = 0
         self.center = np.array([0.0,0.0,0.0])
-        self.pos = np.array([0.0,0.0,10.0])
+        self.pos = np.array([0.0,0.0,6.0])
         self.front = np.array([0.0,0.0,-1.0])
         self.up = np.array([0.0,1.0, 0.0])
         self.fovy        = 40.0 
@@ -234,9 +241,10 @@ class GL3DPlot(QGLWidget):
         gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
         self.lookAt()
         
-        self.drawAxes()
-        self.drawCameras()
-        self.drawTable()
+        if not CTRL:
+            self.drawAxes()
+            self.drawCameras()
+            self.drawTable()
         self.drawBalls()
         
         glEnableClientState(GL_VERTEX_ARRAY)
@@ -246,11 +254,12 @@ class GL3DPlot(QGLWidget):
     def drawBalls(self):
         global READER_3D
         global CUR_3D_FILE
+        global SHIFT
         if READER_3D != None:
             CUR_3D_FILE.seek(0)
             for row in READER_3D:
                 try:
-                    frame = int(row['Frame'])
+                    frame = int(row['frame'])
                     x = float(row['x'])
                     y = float(row['y'])
                     z = float(row['z'])
@@ -263,6 +272,8 @@ class GL3DPlot(QGLWidget):
                 if frame == CUR_FRAME:
                     glColor3f(1, 0, 0)
                 else:
+                    if SHIFT:
+                        continue
                     glColor3f(1,.5, 0)
                 
                 glPushMatrix();
@@ -273,7 +284,7 @@ class GL3DPlot(QGLWidget):
     def drawTable(self):
         length = 2.74
         width = 1.525
-        height = .76
+        height = 0
         glPushMatrix()
         glBegin(GL_POLYGON)
         glVertex3f(-length/2, -width/2, height)
@@ -359,7 +370,16 @@ class GL3DPlot(QGLWidget):
                   center[0], center[1], center[2],
                   c.up[0],  c.up[1],  c.up[2])
         
-    def keyPressEvent(self, event):        
+    def keyPressEvent(self, event):
+        global SHIFT
+        global CTRL
+        #print(event.key())
+              
+        if event.key() == 16777248:
+            SHIFT = not SHIFT
+        if event.key() == 16777249:
+            CTRL = not CTRL
+              
         if event.key() == 87:
             self.cam.moveForward()
             #self.cam.moveUp()
@@ -421,6 +441,7 @@ class GL3DPlot(QGLWidget):
 class VideoFrameDisplay(QGroupBox):
     def __init__(self, cName, parent):
         QGroupBox.__init__(self, parent)
+        self.cName = cName
         self.videoFiles = sorted([name for name in os.listdir(VIDEO_DIR) if cName in name])
         self.createElements()
         self.createLayout()
@@ -439,20 +460,70 @@ class VideoFrameDisplay(QGroupBox):
         self.setLayout(self.mainBox)
         
     def updateSequence(self):
+        global BALL_2D_COORDS_DIR
+        global CUR_SEQUENCE
+        
+        cs = CUR_SEQUENCE
+        cDir = BALL_2D_COORDS_DIR
         self.vid = imageio.get_reader(VIDEO_DIR + self.videoFiles[CUR_SEQUENCE],'mp4')
+        self.pathLabel.setText(self.videoFiles[CUR_SEQUENCE])
+        try:
+            self.coordFiles = sorted([cDir+name for name in os.listdir(cDir) if self.cName in name])
+            self.coordFile = self.coordFiles[cs]
+            self.coordFile = open(self.coordFile)
+            self.coordFileReader = csv.DictReader(self.coordFile)
+            print("{} is reading 2D Coordinates from {}".format(self.cName, self.coordFiles[cs]))
+        except Exception as e:
+            print(e)
         
     def updateImg(self):
-        self.pathLabel.setText(self.videoFiles[CUR_SEQUENCE])
         img = np.asarray(self.vid.get_data(CUR_FRAME))
         h, w, d = img.shape
+        
+        if CTRL:
+            img.fill(255)
+            
+        self.coordFile.seek(0)
+        for row in self.coordFileReader:
+            try:
+                frame = int(row["frame"])
+                x = int(row['x'])
+                y = int(row['y'])
+            except:
+                continue
+                    
+            if frame > CUR_FRAME:
+                break
+                
+            elif frame < CUR_FRAME and not SHIFT:
+                self.markImage(img, x, y, False)
+            elif frame == CUR_FRAME:
+                self.markImage(img, x, y, True)
+                    
         qImg = QImage(img, w, h, d*w, QImage.Format_RGB888)
         pMap = QPixmap(qImg)
         pMap = pMap.scaledToWidth(450)
         self.imgBox.setPixmap(pMap)
         
+    def markImage(self, pxlImg, x, y, curLocation):
+        color = np.array([0,0,0])
+        h, w, d = pxlImg.shape
+        if curLocation:
+            color = np.array([255, 0, 0])
+        else:
+            color = np.array([255, 140, 0])
+            
+        size = 5
+        for i in range(y-size, y+size+1):
+            for j in range(x-size, x+size+1):
+                if i>=0 and j>=0 and i<h and j<w:
+                    pxlImg[i, j, :] = color
+            
+        
 
 
 class PPDashBoard(QWidget):
+    incrementFrame = Signal()
     ''' container for all application widgets '''
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -461,34 +532,45 @@ class PPDashBoard(QWidget):
         self.createActions()
         
     def createElements(self):
+        btnSize = 30
         self.gl3dPlot = GL3DPlot(self)
         
         self.vidFrame1 = VideoFrameDisplay('CAM1', self)
         self.vidFrame2 = VideoFrameDisplay('CAM2', self)
         self.vidFrame3 = VideoFrameDisplay('CAM3', self)
         
-        self.curFrame = QSpinBox()
-        self.curFrame.setMinimum(0)
-        self.curFrame.setMaximum(NUMBER_OF_FRAMES - 1)
-        self.curSequence = QSpinBox()
-        self.curSequence.setMinimum(0)
-        self.curSequence.setMaximum(9)
-        self.frTotLabel = QLabel("out of {}".format(NUMBER_OF_FRAMES))
-        self.seqTotLabel = QLabel("out of 10")
-        self.frLabel = QLabel("Frame:")
-        self.seqLabel = QLabel("Sequence:")
-        self.backward = QPushButton('prev')
-        self.forward = QPushButton('next')
-        self.pause = QPushButton('pause')
-        self.play = QPushButton('play')
+        self.frCtrlLabel = QLabel("- FRAME -")
+        self.frPrev = QPushButton('<')
+        self.frPrev.setFixedSize(btnSize,btnSize)
+        self.frLabel = QLabel("{}/{}".format(CUR_FRAME+1, NUMBER_OF_FRAMES))
+        self.frNext = QPushButton('>')
+        self.frNext.setFixedSize(btnSize,btnSize)
+        self.frReset = QPushButton('reset')
+        self.frReset.setFixedHeight(btnSize*2)
+        self.frPause = QPushButton('pause')
+        self.frPause.setFixedHeight(btnSize*2)
+        self.frPlay = QPushButton('play')
+        self.frPlay.setFixedHeight(btnSize*2)
+        
+        self.seqCtrlLabel = QLabel("- SEQUENCE -")
+        self.seqPrev = QPushButton('<')
+        self.seqPrev.setFixedSize(btnSize,btnSize)
+        self.seqLabel = QLabel("{}/10".format(CUR_SEQUENCE+1))
+        self.seqNext = QPushButton('>')
+        self.seqNext.setFixedSize(btnSize,btnSize)
+        
         
     def createLayout(self):
         self.mainBox     = QHBoxLayout()
         self._3dPlotBox  = QVBoxLayout()
         self.vidBox      = QVBoxLayout()
         self.buttonBox   = QHBoxLayout()
-        self.frameSpin   = QVBoxLayout()
-        self.seqSpin     = QVBoxLayout()
+        self.frCtrl      = QVBoxLayout()
+        self.frBtnCtrl   = QHBoxLayout()
+        self.seqCtrl     = QVBoxLayout()
+        self.seqBtnCtrl  = QHBoxLayout()
+        self.frSub       = QHBoxLayout()
+        self.seqSub      = QHBoxLayout()
         
         self.mainBox.addLayout(self._3dPlotBox)
         self.mainBox.addLayout(self.vidBox)
@@ -500,107 +582,113 @@ class PPDashBoard(QWidget):
         self.vidBox.addWidget(self.vidFrame2)
         self.vidBox.addWidget(self.vidFrame3)
         
-        self.seqSpin.addWidget(self.seqLabel)
-        self.seqSpin.addWidget(self.curSequence)
-        self.seqSpin.addWidget(self.seqTotLabel)
-        self.buttonBox.addLayout(self.seqSpin)
-        self.buttonBox.addStretch(1)
+        self.frCtrl.addLayout(self.frSub)
+        self.frSub.addStretch(1)
+        self.frSub.addWidget(self.frCtrlLabel)
+        self.frSub.addStretch(1)
+        self.frCtrl.addLayout(self.frBtnCtrl)
+        self.frBtnCtrl.addWidget(self.frPrev)
+        self.frBtnCtrl.addWidget(self.frLabel)
+        self.frBtnCtrl.addWidget(self.frNext)
         
-        self.frameSpin.addWidget(self.frLabel)
-        self.frameSpin.addWidget(self.curFrame)
-        self.frameSpin.addWidget(self.frTotLabel)
-        self.buttonBox.addLayout(self.frameSpin)
-        self.buttonBox.addStretch(1)
+        self.seqCtrl.addLayout(self.seqSub)
+        self.seqSub.addStretch(1)
+        self.seqSub.addWidget(self.seqCtrlLabel)
+        self.seqSub.addStretch(1)
+        self.seqCtrl.addLayout(self.seqBtnCtrl)
+        self.seqBtnCtrl.addWidget(self.seqPrev)
+        self.seqBtnCtrl.addWidget(self.seqLabel)
+        self.seqBtnCtrl.addWidget(self.seqNext)
         
-        self.buttonBox.addWidget(self.backward)
-        self.buttonBox.addWidget(self.forward)
-        self.buttonBox.addWidget(self.pause)
-        self.buttonBox.addWidget(self.play)
+        self.buttonBox.addLayout(self.seqCtrl)
+        self.buttonBox.addStretch(1)
+        self.buttonBox.addLayout(self.frCtrl)
+        self.buttonBox.addWidget(self.frReset)
+        self.buttonBox.addStretch(1)
+        self.buttonBox.addWidget(self.frPause)
+        self.buttonBox.addWidget(self.frPlay)
         
         self.setLayout(self.mainBox)
        
     def createActions(self):
-        self.forward.clicked.connect(self.onForward)
-        self.backward.clicked.connect(self.onBackward)
-        self.play.clicked.connect(self.onPlay)
-        self.pause.clicked.connect(self.onPause)
-        self.curFrame.valueChanged.connect(self.onCurFrameSpinBoxChange)
-        self.curSequence.valueChanged.connect(self.onSequenceChange)
+        self.frNext.clicked.connect(self.onFrameNext)
+        self.frPrev.clicked.connect(self.onFramePrev)
+        self.frReset.clicked.connect(self.onFrameReset)
+        self.seqNext.clicked.connect(self.onSequenceNext)
+        self.seqPrev.clicked.connect(self.onSequencePrev)
+        self.frPlay.clicked.connect(self.onPlay)
+        self.frPause.clicked.connect(self.onPause)
+        self.incrementFrame.connect(self.onFrameNext)
     
-    def onSequenceChange(self):
-        updateSequence(self.curSequence.value())
-        self.curFrame.setMaximum(NUMBER_OF_FRAMES-1)
-        self.curFrame.setValue(0)
-        self.frTotLabel.setText('out of {}'.format(NUMBER_OF_FRAMES))
-        self.vidFrame1.updateSequence()
-        self.vidFrame2.updateSequence()
-        self.vidFrame3.updateSequence()
-        self.onFrameChange()
-    
-    def onCurFrameSpinBoxChange(self):
-        updateFrame(self.curFrame.value())
-        self.onFrameChange()
-    
-    def onBackward(self):
-        if CUR_FRAME == 0:
-            updateFrame(NUMBER_OF_FRAMES-1)
-        else:
-            updateFrame(CUR_FRAME - 1)
-        self.onFrameChange()
-        
-    def onForward(self):
-        updateFrame(CUR_FRAME + 1)
-        self.onFrameChange()
-        
     def onPause(self):
         global PLAYING
         try:
+            PLAYING = False
             self.playThread.join()
         except Exception as e:
-            print(e)
+            pass
         
     def onPlay(self):
         self.playThread = PlayThread(self)
         self.playThread.start()
-        
-    def roll(self):
-        global PLAYING
-        global FRAME_RATE
-        global CUR_FRAME
-        
-        PLAYING = True
-        while PLAYING:
-            updateFrame(CUR_FRAME + 1)
-            time.sleep(FRAME_RATE)
     
+    def onFrameNext(self):
+        updateFrame(CUR_FRAME + 1)
+        self.onFrameChange()
+        
+    def onFramePrev(self):
+        updateFrame(CUR_FRAME - 1)
+        self.onFrameChange()
+        
+    def onFrameReset(self):
+        updateFrame(0)
+        self.onFrameChange()
+        
+    def onSequenceNext(self):
+        if CUR_SEQUENCE < 9:
+            updateSequence(CUR_SEQUENCE + 1)
+            self.onSequenceChange()
+            
+    def onSequencePrev(self):
+        if CUR_SEQUENCE > 0:
+            updateSequence(CUR_SEQUENCE - 1)
+            self.onSequenceChange()
+    
+    def onSequenceChange(self):
+        self.seqLabel.setText('{}/10'.format(CUR_SEQUENCE+1))
+        self.vidFrame1.updateSequence()
+        self.vidFrame2.updateSequence()
+        self.vidFrame3.updateSequence()
+        updateFrame(0)
+        self.onFrameChange()
+        
     def onFrameChange(self):
-        if self.curFrame.value() != CUR_FRAME:
-            self.curFrame.setValue(CUR_FRAME)
+        self.frLabel.setText('{}/{}'.format(CUR_FRAME+1, NUMBER_OF_FRAMES))
         self.vidFrame1.updateImg()
         self.vidFrame2.updateImg()
         self.vidFrame3.updateImg()
         self.gl3dPlot.updateGL()
-            
+        
+        
 class PlayThread(Thread):
     def __init__(self, slave):
         Thread.__init__(self)
-        self._stopevent = Event()
         self.slave = slave
         
     def run(self):
         global PLAYING
         global FRAME_RATE
         global CUR_FRAME
-        
+        self.done = False
         PLAYING = True
         while PLAYING:
-            self.slave.curFrame.setValue(CUR_FRAME+1)
-            #updateFrame(CUR_FRAME + 1)
-            #self.slave.onFrameChange()
-            self._stopevent.wait(FRAME_RATE)
+            curVal = self.slave.incrementFrame.emit()
+            time.sleep(1/FRAME_RATE)
+        self.done = True
             
     def join(self):
-        #self._stopevent.set()
+        while not self.done:
+            pass
         Thread.join(self, None)
             
 
@@ -609,14 +697,34 @@ class PPApplication(QMainWindow):
     def __init__(self):
         super(PPApplication, self).__init__()
         updateSequence(0)
-        widget = PPDashBoard(self)
-        self.setCentralWidget(widget)
-        #self.showMaximized()
+        self.dash = PPDashBoard(self)
+        self.setCentralWidget(self.dash)
+        self.showMaximized()
         self.setWindowTitle("Ping Pong Flight Visualization")
+
+    def closeEvent(self, event):
+        self.dash.onPause()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
     app = QApplication(['Ping Pong Flight Visualization'])
+    app.setStyle('Fusion')
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QtGui.QColor(53,53,53))
+    palette.setColor(QPalette.WindowText, QtCore.Qt.white)
+    palette.setColor(QPalette.Base, QtGui.QColor(15,15,15))
+    palette.setColor(QPalette.AlternateBase, QtGui.QColor(53,53,53))
+    palette.setColor(QPalette.ToolTipBase, QtCore.Qt.white)
+    palette.setColor(QPalette.ToolTipText, QtCore.Qt.white)
+    palette.setColor(QPalette.Text, QtCore.Qt.white)
+    palette.setColor(QPalette.Button, QtGui.QColor(53,53,53))
+    palette.setColor(QPalette.ButtonText, QtCore.Qt.white)
+    palette.setColor(QPalette.BrightText, QtCore.Qt.red)
+    palette.setColor(QPalette.Highlight, QtGui.QColor(142,45,197).lighter())
+    palette.setColor(QPalette.HighlightedText, QtCore.Qt.black)
+    app.setPalette(palette)
+    
     window = PPApplication()
     window.show()
     app.exec_()

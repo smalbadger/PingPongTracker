@@ -65,7 +65,7 @@ CUR_2D_FILE = None
 READER_2D = None
 
 
-BALL_3D_COORDS_DIR = "../Test3DCoords/"
+BALL_3D_COORDS_DIR = "../triangulation_output/"
 CUR_3D_FILE = None
 READER_3D = None
 
@@ -258,7 +258,7 @@ class GL3DPlot(QGLWidget):
             CUR_3D_FILE.seek(0)
             for row in READER_3D:
                 try:
-                    frame = int(row['Frame'])
+                    frame = int(row['frame'])
                     x = float(row['x'])
                     y = float(row['y'])
                     z = float(row['z'])
@@ -283,7 +283,7 @@ class GL3DPlot(QGLWidget):
     def drawTable(self):
         length = 2.74
         width = 1.525
-        height = .76
+        height = 0
         glPushMatrix()
         glBegin(GL_POLYGON)
         glVertex3f(-length/2, -width/2, height)

@@ -29,8 +29,8 @@ COL_NUM_X = 2;
 COL_NUM_Y = 3;
 COL_NUM_Z = 4;
 
-for trajectoryIdx = 1 : N_TRAJECTORIES
-% for trajectoryIdx = 1 : 1
+for trajectoryIdx = 1:N_TRAJECTORIES
+    % for trajectoryIdx = 1 : 1
     % figure
     % Read 2D data from file
     cam_file_1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
@@ -66,17 +66,22 @@ for trajectoryIdx = 1 : N_TRAJECTORIES
         imgCoord3 = get_image_coord(ROTATION_MATRICES{3}, TRANSLATION_VECTORS{3}, dirToImg3);
 
         startPoints = [TRANSLATION_VECTORS{1}.'; TRANSLATION_VECTORS{2}.'; TRANSLATION_VECTORS{3}.'; ];
-        endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.';];
+        endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.'; ];
 
-        [P_intersect,distances] = lineIntersect3D(startPoints, endPoints);
+        [P_intersect, distances] = lineIntersect3D(startPoints, endPoints);
 
-        result(rowIdx, :) = [ frame , P_intersect];
-        % scatter3(P_intersect(1), P_intersect(2), P_intersect(3));
+        result(rowIdx, :) = [frame, P_intersect];
     end
+
     % comet3(result(:, 2), result(:, 3), result(:, 4));
-    output = [ colHeader; num2cell(result)];
-    outputFilePath = strcat(OUTPUT_PATH, extractBefore(extractAfter(cam_file_1,'/'), '.csv'), '.xls');
-    xlswrite(outputFilePath, output)
+    output = [colHeader; num2cell(result)];
+    outputFilePath = strcat(OUTPUT_PATH, extractAfter(cam_file_1, '/'));
+
+    fid = fopen(outputFilePath, 'w');
+    fprintf(fid, '%s,', colHeader{1:3}) ;
+    fprintf(fid, '%s\n', colHeader{4}) ;
+    fclose(fid);
+    dlmwrite(outputFilePath, result, '-append');
 
     % Write 3D data to file
 end

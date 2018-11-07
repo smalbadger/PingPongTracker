@@ -148,102 +148,101 @@ def getPointOneAway(p1, p2):
 class Camera:
     def __init__(self):
         self.speed = 0.1
-        self.pitch = 0
-        self.yaw   = 0
-        self.distance = 10
-        self.theta = 0
-        self.phi = 0
-        self.center = np.array([0.0,0.0,0.0])
-        self.pos = np.array([0.0,0.0,6.0])
-        self.front = np.array([0.0,0.0,-1.0])
-        self.up = np.array([0.0,1.0, 0.0])
-        self.fovy        = 60.0 
+        self.angularSpeed = 1
+        self.distance = 3
+        self.theta = 90
+        self.phi = 90
+        self.fovy        = 100.0 
         self.aspectRatio = 1.0
-        self.zNear       = 0 
-        self.zFar        = 10
-    '''
+        self.zNear       = .1 
+        self.zFar        = 100
+        self.center = np.array([0.0,0.0,0.0])
+        self.changeView('x')
+        self.updateAngles()
+        
+    
     def moveUp(self):
-        self.phi+=self.speed
+        #if self.distance - self.pos[2] <.01:
+        #    return
+        self.phi+=self.angularSpeed
         self.updatePos()
+        self.updateFront()
+        self.updateUp()
         
     def moveDown(self):
-        self.phi-=self.speed
+        #if self.distance + self.pos[2] <.01:
+        #    return
+        self.phi-=self.angularSpeed
         self.updatePos()
-      
-    def moveForward(self):
-        self.distance -= self.speed
-        self.updatePos()
-        
-    def moveBackward(self):
-        self.distance += self.speed
-        self.updatePos()
-        
-    def moveLeft(self):
-        self.theta -= self.speed
-        self.updatePos()
-        
-    def moveRight(self):
-        self.theta -= self.speed
-        self.updatePos() 
-    '''
-    def moveForward(self):
-        self.pos += self.speed * self.front
-        
-    def moveBackward(self):
-        self.pos -= self.speed * self.front
-        
-    def moveLeft(self):
-        self.pos -= np.cross(self.front, self.up) * self.speed
-        
-    def moveRight(self):
-        self.pos += np.cross(self.front, self.up) * self.speed
-    
-    def lookUp(self):
-        self.pitch += 1
         self.updateFront()
-        
-    def lookDown(self):
-        self.pitch -= 1
-        self.updateFront()
-        
-    def lookLeft(self):
-        self.yaw -= 1
-        self.updateFront()
-        
-    def lookRight(self):
-        self.yaw += 1
-        self.updateFront()
-        
-    '''
-    def updatePos(self):
-        self.pos[0] = self.distance * np.cos(self.theta) * np.sin(self.phi)
-        self.pos[1] = self.distance * np.sin(self.theta) * np.sin(self.phi)
-        self.pos[2] = self.distance * np.cos(self.phi)
         self.updateUp()
+        
+    def moveLeft(self):
+        self.theta -= self.angularSpeed
+        self.updatePos()
+        self.updateFront()
+        self.updateUp()
+        
+    def moveRight(self):
+        self.theta += self.angularSpeed
+        self.updatePos() 
+        self.updateFront()
+        self.updateUp()
+    
+    
+    def moveForward(self):
+        if self.distance < 2 * self.speed:
+            return
+        self.pos += self.speed * self.front
+        self.updateDistance()
+        
+    def moveBackward(self):
+        if self.distance >10:
+            return
+        self.pos -= self.speed * self.front
+        self.updateDistance()
+        
+    def updatePos(self):
+        theta = np.deg2rad(self.theta)
+        phi = np.deg2rad(self.phi)
+        self.pos[0] = self.distance * np.cos(theta) * np.sin(phi)
+        self.pos[1] = self.distance * np.sin(theta) * np.sin(phi)
+        self.pos[2] = self.distance * np.cos(phi)
         
     def updateUp(self):
         perp = np.array([self.pos[1], self.pos[0], 0])
         self.up = np.cross(perp,(self.center - self.pos))
-    '''
+    
     def updateFront(self):
-        self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.cos(np.deg2rad(self.yaw))
-        self.front[1] = np.sin(np.deg2rad(self.pitch))
-        self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.sin(np.deg2rad(self.yaw))
+        self.front = self.center - self.pos
         
+    
+    def updateAngles(self):
+        #self.theta = 0
+        wrt = np.array([1, 0, 0])
+        t = np.array([self.pos[0], self.pos[1], 0])
+        self.theta = np.rad2deg(np.arccos(np.dot(wrt, t)/(np.linalg.norm(wrt)*np.linalg.norm(t))))
+        
+        wrt = np.array([0, 0, 1])
+        t = np.array([self.pos[0], 0, self.pos[2]])
+        self.phi = np.rad2deg(np.arccos(np.dot(wrt, t)/(np.linalg.norm(wrt)*np.linalg.norm(t))))
+        print(self.theta)
+        print(self.phi)
+    
+     
     def changeView(self, option):
-        self.center = np.array([0.0,0.0,0.0])
         if option == 'x':
-            self.pos = np.array([-7.0,0.0,1.0])
+            self.pos = np.array([-self.distance,0.0,1.0])
             self.front = np.array([1.0,0.0,0.0])
             self.up = np.array([0.0,0.0, 1.0])
             
         elif option == 'y':
-            self.pos = np.array([0.0,-7.0,1.0])
+            self.pos = np.array([0.0,-self.distance,1.0])
             self.front = np.array([0.0,1.0,0.0])
             self.up = np.array([0.0,0.0, 1.0])
         
         elif option == 'z':
-            self.pos = np.array([0.0,0.0,7.0])
+            self.pos = np.array([0.0,0.0,self.distance])
             self.front = np.array([0.0,0.0,-1.0])
             self.up = np.array([0.0,1.0, 0.0])
             
@@ -264,6 +263,11 @@ class Camera:
             self.front = self.center - self.pos
             t = np.array([self.front[0], self.front[1], 0])
             self.up = np.cross(np.cross(self.front, t), self.front)
+            
+        self.updateDistance()
+    
+    def updateDistance(self):
+        self.distance = np.sqrt(self.pos[0]**2 + self.pos[1]**2 + self.pos[2]**2)
 
 class GL3DPlot(QGLWidget):
     def __init__(self, parent):
@@ -426,26 +430,18 @@ class GL3DPlot(QGLWidget):
             CTRL = not CTRL
               
         if key == 87:
-            self.cam.moveForward()
-            #self.cam.moveUp()
+            self.cam.moveUp()
         if key == 83:
-            self.cam.moveBackward()
-            #self.cam.moveDown()
+            self.cam.moveDown()
         if key == 65:
             self.cam.moveLeft()
         if key == 68:
             self.cam.moveRight()
             
         if key == 16777235:
-            self.cam.lookUp()
-            #self.cam.moveForward()
+            self.cam.moveForward()
         if key == 16777237:
-            self.cam.lookDown()
-            #self.cam.moveBackward()
-        if key == 16777236:
-            self.cam.lookRight()
-        if key == 16777234:
-            self.cam.lookLeft()
+            self.cam.moveBackward()
             
         if key == 88:
             self.cam.changeView('x')

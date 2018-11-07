@@ -28,8 +28,11 @@ from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QGroupBox
 from PySide2.QtGui import QPixmap
 from PySide2.QtGui import QImage
+from PySide2.QtGui import QPalette
 from PySide2.QtCore import Qt
 from PySide2.QtCore import Signal
+import PySide2.QtGui as QtGui
+import PySide2.QtCore as QtCore
 
 import imageio
 import numpy as np
@@ -697,6 +700,22 @@ class PPApplication(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(['Ping Pong Flight Visualization'])
+    app.setStyle('Fusion')
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QtGui.QColor(53,53,53))
+    palette.setColor(QPalette.WindowText, QtCore.Qt.white)
+    palette.setColor(QPalette.Base, QtGui.QColor(15,15,15))
+    palette.setColor(QPalette.AlternateBase, QtGui.QColor(53,53,53))
+    palette.setColor(QPalette.ToolTipBase, QtCore.Qt.white)
+    palette.setColor(QPalette.ToolTipText, QtCore.Qt.white)
+    palette.setColor(QPalette.Text, QtCore.Qt.white)
+    palette.setColor(QPalette.Button, QtGui.QColor(53,53,53))
+    palette.setColor(QPalette.ButtonText, QtCore.Qt.white)
+    palette.setColor(QPalette.BrightText, QtCore.Qt.red)
+    palette.setColor(QPalette.Highlight, QtGui.QColor(142,45,197).lighter())
+    palette.setColor(QPalette.HighlightedText, QtCore.Qt.black)
+    app.setPalette(palette)
+    
     window = PPApplication()
     window.show()
     app.exec_()

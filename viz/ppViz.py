@@ -241,9 +241,10 @@ class GL3DPlot(QGLWidget):
         gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
         self.lookAt()
         
-        self.drawAxes()
-        self.drawCameras()
-        self.drawTable()
+        if not CTRL:
+            self.drawAxes()
+            self.drawCameras()
+            self.drawTable()
         self.drawBalls()
         
         glEnableClientState(GL_VERTEX_ARRAY)
@@ -460,15 +461,18 @@ class VideoFrameDisplay(QGroupBox):
         
     def updateSequence(self):
         global BALL_2D_COORDS_DIR
+        global CUR_SEQUENCE
+        
+        cs = CUR_SEQUENCE
         cDir = BALL_2D_COORDS_DIR
         self.vid = imageio.get_reader(VIDEO_DIR + self.videoFiles[CUR_SEQUENCE],'mp4')
         self.pathLabel.setText(self.videoFiles[CUR_SEQUENCE])
         try:
             self.coordFiles = sorted([cDir+name for name in os.listdir(cDir) if self.cName in name])
-            self.coordFile = self.coordFiles[CUR_SEQUENCE]
+            self.coordFile = self.coordFiles[cs]
             self.coordFile = open(self.coordFile)
             self.coordFileReader = csv.DictReader(self.coordFile)
-            print("{} is reading 2D Coordinates from {}".format(self.cName, self.coordFiles[CUR_SEQUENCE]))
+            print("{} is reading 2D Coordinates from {}".format(self.cName, self.coordFiles[cs]))
         except Exception as e:
             print(e)
         
@@ -476,6 +480,9 @@ class VideoFrameDisplay(QGroupBox):
         img = np.asarray(self.vid.get_data(CUR_FRAME))
         h, w, d = img.shape
         
+        if CTRL:
+            img.fill(255)
+            
         self.coordFile.seek(0)
         for row in self.coordFileReader:
             try:
@@ -489,18 +496,16 @@ class VideoFrameDisplay(QGroupBox):
                 break
                 
             elif frame < CUR_FRAME and not SHIFT:
-                self.markImg(img, x, y, False)
+                self.markImage(img, x, y, False)
             elif frame == CUR_FRAME:
-                self.markImg(img, x, y, True)
+                self.markImage(img, x, y, True)
                     
-            
-                
         qImg = QImage(img, w, h, d*w, QImage.Format_RGB888)
         pMap = QPixmap(qImg)
         pMap = pMap.scaledToWidth(450)
         self.imgBox.setPixmap(pMap)
         
-    def markImg(self, pxlImg, x, y, curLocation):
+    def markImage(self, pxlImg, x, y, curLocation):
         color = np.array([0,0,0])
         h, w, d = pxlImg.shape
         if curLocation:
@@ -621,7 +626,7 @@ class PPDashBoard(QWidget):
             PLAYING = False
             self.playThread.join()
         except Exception as e:
-            print(e)
+            pass
         
     def onPlay(self):
         self.playThread = PlayThread(self)

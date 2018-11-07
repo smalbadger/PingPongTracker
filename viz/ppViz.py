@@ -157,7 +157,7 @@ class Camera:
         self.pos = np.array([0.0,0.0,6.0])
         self.front = np.array([0.0,0.0,-1.0])
         self.up = np.array([0.0,1.0, 0.0])
-        self.fovy        = 40.0 
+        self.fovy        = 60.0 
         self.aspectRatio = 1.0
         self.zNear       = 0 
         self.zFar        = 10
@@ -224,11 +224,46 @@ class Camera:
     def updateUp(self):
         perp = np.array([self.pos[1], self.pos[0], 0])
         self.up = np.cross(perp,(self.center - self.pos))
-    '''    
+    '''
     def updateFront(self):
         self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.cos(np.deg2rad(self.yaw))
         self.front[1] = np.sin(np.deg2rad(self.pitch))
         self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.sin(np.deg2rad(self.yaw))
+        
+    def changeView(self, option):
+        self.center = np.array([0.0,0.0,0.0])
+        if option == 'x':
+            self.pos = np.array([-7.0,0.0,1.0])
+            self.front = np.array([1.0,0.0,0.0])
+            self.up = np.array([0.0,0.0, 1.0])
+            
+        elif option == 'y':
+            self.pos = np.array([0.0,-7.0,1.0])
+            self.front = np.array([0.0,1.0,0.0])
+            self.up = np.array([0.0,0.0, 1.0])
+        
+        elif option == 'z':
+            self.pos = np.array([0.0,0.0,7.0])
+            self.front = np.array([0.0,0.0,-1.0])
+            self.up = np.array([0.0,1.0, 0.0])
+            
+        elif option == '1':
+            self.pos = c1.reshape((1, 3))[0]
+            self.front = self.center - self.pos
+            t = np.array([self.front[0], self.front[1], 0])
+            self.up = np.cross(np.cross(self.front, t), self.front)
+            
+        elif option == '2':
+            self.pos = c2.reshape((1, 3))[0]
+            self.front = self.center - self.pos
+            t = np.array([self.front[0], self.front[1], 0])
+            self.up = np.cross(np.cross(self.front, t), self.front)
+            
+        elif option == '3':
+            self.pos = c3.reshape((1, 3))[0]
+            self.front = self.center - self.pos
+            t = np.array([self.front[0], self.front[1], 0])
+            self.up = np.cross(np.cross(self.front, t), self.front)
 
 class GL3DPlot(QGLWidget):
     def __init__(self, parent):
@@ -240,19 +275,51 @@ class GL3DPlot(QGLWidget):
     def paintGL(self):
         ''' Drawing routine '''
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glLoadIdentity()
-        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+        
         self.lookAt()
         
         if not CTRL:
             self.drawAxes()
-            self.drawCameras()
             self.drawTable()
+            self.drawCameras()
+            
         self.drawBalls()
         
         glEnableClientState(GL_VERTEX_ARRAY)
         
         glFlush()
+       
+    def resizeGL(self, w, h):
+        '''
+        Resize the GL window 
+        '''
+        glViewport(0, 0, w, h)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+    
+    def initializeGL(self):
+        '''
+        Initialize GL
+        '''
+        glutInit()
+        glClearColor(1.0, 1.0, 1.0, 1.0)
+        glClearDepth(1.0)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        
+        glMatrixMode(GL_MODELVIEW)
+        self.lookAt()
+        
+    def lookAt(self):
+        c = self.cam
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+        gluLookAt(   c.pos[0],    c.pos[1],    c.pos[2], 
+                  c.center[0], c.center[1], c.center[2],
+                      c.up[0],     c.up[1],     c.up[2])
+        glMatrixMode(GL_MODELVIEW)
         
     def drawBalls(self):
         global READER_3D
@@ -288,6 +355,7 @@ class GL3DPlot(QGLWidget):
         length = 2.74
         width = 1.525
         height = 0
+        glColor4f(.1,.1,1,1)
         glPushMatrix()
         glBegin(GL_POLYGON)
         glVertex3f(-length/2, -width/2, height)
@@ -302,8 +370,8 @@ class GL3DPlot(QGLWidget):
         glPushMatrix()
         glColor4f(0,0,0,1)
         glBegin(GL_LINES)
-        glVertex3f(0, 0,  100)
-        glVertex3f(0, 0, -100)
+        #glVertex3f(0, 0,  100)
+        #glVertex3f(0, 0, -100)
         glVertex3f(0,  100, 0)
         glVertex3f(0, -100, 0)
         glVertex3f( 100, 0, 0)
@@ -344,66 +412,53 @@ class GL3DPlot(QGLWidget):
         glTranslatef(0, 0, length)
         gluCylinder(gluNewQuadric(), 3, 0, length/5, 100, 100)
 
-    def resizeGL(self, w, h):
-        '''
-        Resize the GL window 
-        '''
-        glViewport(0, 0, w, h)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(40.0, 1.0, 1.0, 30.0)
     
-    def initializeGL(self):
-        '''
-        Initialize GL
-        '''
-        glutInit()
-        glClearColor(1.0, 1.0, 1.0, 1.0)
-        glClearDepth(1.0)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        
-        glMatrixMode(GL_MODELVIEW)
-        self.lookAt()
-        
-    def lookAt(self):
-        c = self.cam
-        center = c.pos + c.front
-        gluLookAt(c.pos[0], c.pos[1], c.pos[2], 
-                  center[0], center[1], center[2],
-                  c.up[0],  c.up[1],  c.up[2])
         
     def keyPressEvent(self, event):
         global SHIFT
         global CTRL
-        #print(event.key())
+        key = event.key()
+        #print(key)
               
-        if event.key() == 16777248:
+        if key == 16777248:
             SHIFT = not SHIFT
-        if event.key() == 16777249:
+        if key == 16777249:
             CTRL = not CTRL
               
-        if event.key() == 87:
+        if key == 87:
             self.cam.moveForward()
             #self.cam.moveUp()
-        if event.key() == 83:
+        if key == 83:
             self.cam.moveBackward()
             #self.cam.moveDown()
-        if event.key() == 65:
+        if key == 65:
             self.cam.moveLeft()
-        if event.key() == 68:
+        if key == 68:
             self.cam.moveRight()
             
-        if event.key() == 16777235:
+        if key == 16777235:
             self.cam.lookUp()
             #self.cam.moveForward()
-        if event.key() == 16777237:
+        if key == 16777237:
             self.cam.lookDown()
             #self.cam.moveBackward()
-        if event.key() == 16777236:
+        if key == 16777236:
             self.cam.lookRight()
-        if event.key() == 16777234:
+        if key == 16777234:
             self.cam.lookLeft()
+            
+        if key == 88:
+            self.cam.changeView('x')
+        if key == 89:
+            self.cam.changeView('y')
+        if key == 90:
+            self.cam.changeView('z')
+        if key == 49:
+            self.cam.changeView('1')
+        if key == 50:
+            self.cam.changeView('2')
+        if key == 51:
+            self.cam.changeView('3')
         
         self.updateGL()
         
@@ -456,7 +511,6 @@ class VideoFrameDisplay(QGroupBox):
         self.imgBox = QLabel()
         
     def createLayout(self):
-        
         self.mainBox = QVBoxLayout()
         self.mainBox.addWidget(self.pathLabel)
         self.mainBox.addWidget(self.imgBox)

@@ -57,7 +57,7 @@ NUMBER_OF_FRAMES = 1
 PLAYING = False
 VIDEO_DIR = "../TestVideos/"
 
-BALL_2D_COORDS_DIR = ""
+BALL_2D_COORDS_DIR = "../Annotation/"
 CUR_2D_FILE = None
 READER_2D = None
 
@@ -437,6 +437,7 @@ class GL3DPlot(QGLWidget):
 class VideoFrameDisplay(QGroupBox):
     def __init__(self, cName, parent):
         QGroupBox.__init__(self, parent)
+        self.cName = cName
         self.videoFiles = sorted([name for name in os.listdir(VIDEO_DIR) if cName in name])
         self.createElements()
         self.createLayout()
@@ -455,16 +456,61 @@ class VideoFrameDisplay(QGroupBox):
         self.setLayout(self.mainBox)
         
     def updateSequence(self):
+        global BALL_2D_COORDS_DIR
+        cDir = BALL_2D_COORDS_DIR
         self.vid = imageio.get_reader(VIDEO_DIR + self.videoFiles[CUR_SEQUENCE],'mp4')
+        self.pathLabel.setText(self.videoFiles[CUR_SEQUENCE])
+        try:
+            self.coordFiles = sorted([cDir+name for name in os.listdir(cDir) if self.cName in name])
+            self.coordFile = self.coordFiles[CUR_SEQUENCE]
+            self.coordFile = open(self.coordFile)
+            self.coordFileReader = csv.DictReader(self.coordFile)
+            print("{} is reading 2D Coordinates from {}".format(self.cName, self.coordFiles[CUR_SEQUENCE]))
+        except Exception as e:
+            print(e)
         
     def updateImg(self):
-        self.pathLabel.setText(self.videoFiles[CUR_SEQUENCE])
         img = np.asarray(self.vid.get_data(CUR_FRAME))
         h, w, d = img.shape
+        
+        self.coordFile.seek(0)
+        for row in self.coordFileReader:
+            try:
+                frame = int(row["frame"])
+                x = int(row['x'])
+                y = int(row['y'])
+            except:
+                continue
+                    
+            if frame > CUR_FRAME:
+                break
+                
+            elif frame < CUR_FRAME and not SHIFT:
+                self.markImg(img, x, y, False)
+            elif frame == CUR_FRAME:
+                self.markImg(img, x, y, True)
+                    
+            
+                
         qImg = QImage(img, w, h, d*w, QImage.Format_RGB888)
         pMap = QPixmap(qImg)
         pMap = pMap.scaledToWidth(450)
         self.imgBox.setPixmap(pMap)
+        
+    def markImg(self, pxlImg, x, y, curLocation):
+        color = np.array([0,0,0])
+        h, w, d = pxlImg.shape
+        if curLocation:
+            color = np.array([255, 0, 0])
+        else:
+            color = np.array([255, 140, 0])
+            
+        size = 5
+        for i in range(y-size, y+size+1):
+            for j in range(x-size, x+size+1):
+                if i>=0 and j>=0 and i<h and j<w:
+                    pxlImg[i, j, :] = color
+            
         
 
 

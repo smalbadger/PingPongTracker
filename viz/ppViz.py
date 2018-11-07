@@ -150,45 +150,28 @@ class Camera:
         self.speed = 0.1
         self.angularSpeed = 1
         self.distance = 3
-        self.theta = 90
-        self.phi = 90
+        self.fromXYPlaneAngle = 0
         self.fovy        = 100.0 
         self.aspectRatio = 1.0
         self.zNear       = .1 
         self.zFar        = 100
         self.center = np.array([0.0,0.0,0.0])
         self.changeView('x')
-        self.updateAngles()
         
     
     def moveUp(self):
-        #if self.distance - self.pos[2] <.01:
-        #    return
-        self.phi+=self.angularSpeed
-        self.updatePos()
-        self.updateFront()
-        self.updateUp()
+        
+        self.updatePos(up=True)
         
     def moveDown(self):
-        #if self.distance + self.pos[2] <.01:
-        #    return
-        self.phi-=self.angularSpeed
-        self.updatePos()
-        self.updateFront()
-        self.updateUp()
+        self.fromXYPlaneAngle -= 1
+        self.updatePos(down=True)
         
     def moveLeft(self):
-        self.theta -= self.angularSpeed
-        self.updatePos()
-        self.updateFront()
-        self.updateUp()
+        self.updatePos(left=True)
         
     def moveRight(self):
-        self.theta += self.angularSpeed
-        self.updatePos() 
-        self.updateFront()
-        self.updateUp()
-    
+        self.updatePos(right=True)
     
     def moveForward(self):
         if self.distance < 2 * self.speed:
@@ -202,72 +185,171 @@ class Camera:
         self.pos -= self.speed * self.front
         self.updateDistance()
         
-    def updatePos(self):
-        theta = np.deg2rad(self.theta)
-        phi = np.deg2rad(self.phi)
-        self.pos[0] = self.distance * np.cos(theta) * np.sin(phi)
-        self.pos[1] = self.distance * np.sin(theta) * np.sin(phi)
-        self.pos[2] = self.distance * np.cos(phi)
+    def updatePos(self, up=False, down=False, right=False, left=False):
+        if up and down:
+            print("can't move camera up and down at the same time")
+            return
+        if right and left:
+            print("can't move camera right and left at the same time")
+            return
+            
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
         
-    def updateUp(self):
-        perp = np.array([self.pos[1], self.pos[0], 0])
-        self.up = np.cross(perp,(self.center - self.pos))
+        transformation = np.zeros(16).reshape((4,4))
+        rV = self.getRightVector()
+        toZAxis = np.array([-self.pos[0], self.pos[1], 0])
+        homogenized = np.ones(4)
+        homogenized[0:3] = self.pos
+        if up or down:
+            
+            if self.pos[2] > 0:
+                angleFromPZ = np.rad2deg(self.angle(self.pos, np.array([0,0,1])))
+                angleFromNZ = 180 - angleFromPZ
+            else:
+                angleFromNZ = np.rad2deg(self.angle(self.pos, np.array([0,0,-1])))
+                angleFromPZ = 180 - angleFromNZ
+                
+            print(angleFromPZ)
+            if angleFromPZ > 10 and up or angleFromNZ > 10 and down:
+                if up:
+                    v = rV
+                if down:
+                    v = -rV
+                
+                # move to origin
+                glTranslatef(0, 0, self.distance)
+                # turn back to look at the current point from origin
+                glRotatef(180, self.up[0], self.up[1], self.up[2])
+                # turn 1 click either up or down
+                glRotatef(self.angularSpeed, v[0], v[1], v[2])
+                # go travel the same distance away from the origin
+                glTranslatef(0, 0, self.distance)
+                
+                glGetDoublev(GL_MODELVIEW_MATRIX, transformation)
+                newPt = np.matmul(transformation, homogenized)
+                self.pos = newPt[0:3]/newPt[3]
+                self.pos *= (-self.distance/np.linalg.norm(self.pos))
+                self.updateFrontVector()
+                self.updateUpVector()
+                
+            else:
+                if up:
+                    print("Can't go up any more.")
+                if down:
+                    print("Can't go down any more.")
+                    
+        if left or right:
+            if left:
+                speed = -self.angularSpeed
+            elif right:
+                speed = self.angularSpeed
+                
+            # use x and y to get distance from z axis.
+            _2d = np.array([self.pos[0], self.pos[1]])
+            x = np.array([1, 0])
+            y = np.array([0, 1])
+            zDist = np.linalg.norm(_2d)
+            
+            if _2d[1]>0:
+                xAngle = self.angle(_2d, x, acute=True)
+            else:
+                xAngle = self.angle(_2d, x, acute=False)
+            
+            xAngle += np.deg2rad(speed)
+            newX = np.cos(xAngle) * zDist
+            newY = np.sin(xAngle) * zDist
+            self.pos[0] = newX
+            self.pos[1] = newY
+            #print(self.pos)
+            self.updateFrontVector()
+            self.updateUpVector()
+            
+            
+            '''
+            if _2d[x]>0 yAngle = self.angle(_2d, y, acute=True)
+            else        yAngle = self.angle(_2d, y, acute=False)
+            '''
+            
+            '''
+            # move to origin
+            glTranslatef(-self.pos[0], -self.pos[1], -self.pos[2])
+            # turn back to look at the current point from origin
+            glRotatef(180, self.up[0], self.up[1], self.up[2])
+            # turn 1 click either up or down
+            glRotatef(speed, 0, 0, 1)
+            # go travel the same distance away from the origin
+            glTranslatef(-self.pos[0], -self.pos[1], -self.pos[2])
+            
+            print("\noldPoint: {}".format(self.pos))
+            glGetDoublev(GL_MODELVIEW_MATRIX, transformation)
+            newPt = np.matmul(transformation, homogenized)
+            self.pos = newPt[0:3]/newPt[3]
+            self.pos *= (-self.distance/np.linalg.norm(self.pos))
+            self.updateFrontVector()
+            self.updateUpVector()
+            print("newPoint: {}".format(self.pos))
+            print("front:    {}".format(self.front))
+            print("up:       {}".format(self.up))
+            '''
+        glPopMatrix()
+        
+    def updateUpVector(self):
+        right = self.getRightVector()
+        print(right)
+        self.up = np.cross(right, self.front)
     
-    def updateFront(self):
+    def updateFrontVector(self):
         self.front = self.center - self.pos
         
-    
-    def updateAngles(self):
-        #self.theta = 0
-        wrt = np.array([1, 0, 0])
-        t = np.array([self.pos[0], self.pos[1], 0])
-        self.theta = np.rad2deg(np.arccos(np.dot(wrt, t)/(np.linalg.norm(wrt)*np.linalg.norm(t))))
+    def getRightVector(self):
+        toZAxis = np.array([-self.pos[0], -self.pos[1], 0])
+        #print("toZAxis: {}".format(toZAxis))
+        if self.pos[2] < 0:
+            right = np.cross(toZAxis, self.front)
+        elif self.pos[2] > 0:
+            right = np.cross(self.front, toZAxis)
+        else:
+            toZAxis[2] = 1
+            right = np.cross(self.front, toZAxis)
+        return right
         
-        wrt = np.array([0, 0, 1])
-        t = np.array([self.pos[0], 0, self.pos[2]])
-        self.phi = np.rad2deg(np.arccos(np.dot(wrt, t)/(np.linalg.norm(wrt)*np.linalg.norm(t))))
-        print(self.theta)
-        print(self.phi)
-    
+    def angle(self, v1, v2, acute=True):
+        angle = np.arccos(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
+        if (acute == True):
+            return angle
+        else:
+            return 2 * np.pi - angle
+            
+        
+    def updateDistance(self):
+        self.distance = np.sqrt(self.pos[0]**2 + self.pos[1]**2 + self.pos[2]**2)
+        print("Updated Distance: {}".format(self.distance))
      
     def changeView(self, option):
         if option == 'x':
             self.pos = np.array([-self.distance,0.0,1.0])
-            self.front = np.array([1.0,0.0,0.0])
-            self.up = np.array([0.0,0.0, 1.0])
             
         elif option == 'y':
             self.pos = np.array([0.0,-self.distance,1.0])
-            self.front = np.array([0.0,1.0,0.0])
-            self.up = np.array([0.0,0.0, 1.0])
         
         elif option == 'z':
             self.pos = np.array([0.0,0.0,self.distance])
-            self.front = np.array([0.0,0.0,-1.0])
-            self.up = np.array([0.0,1.0, 0.0])
             
         elif option == '1':
             self.pos = c1.reshape((1, 3))[0]
-            self.front = self.center - self.pos
-            t = np.array([self.front[0], self.front[1], 0])
-            self.up = np.cross(np.cross(self.front, t), self.front)
             
         elif option == '2':
             self.pos = c2.reshape((1, 3))[0]
-            self.front = self.center - self.pos
-            t = np.array([self.front[0], self.front[1], 0])
-            self.up = np.cross(np.cross(self.front, t), self.front)
             
         elif option == '3':
             self.pos = c3.reshape((1, 3))[0]
-            self.front = self.center - self.pos
-            t = np.array([self.front[0], self.front[1], 0])
-            self.up = np.cross(np.cross(self.front, t), self.front)
             
+        self.updateFrontVector()
+        self.updateUpVector()
         self.updateDistance()
     
-    def updateDistance(self):
-        self.distance = np.sqrt(self.pos[0]**2 + self.pos[1]**2 + self.pos[2]**2)
+    
 
 class GL3DPlot(QGLWidget):
     def __init__(self, parent):

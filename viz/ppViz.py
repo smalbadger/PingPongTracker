@@ -100,7 +100,6 @@ t3 = np.array([[-.060452],
 c1 = np.matmul(-1 * np.linalg.inv(R1), t1)
 c2 = np.matmul(-1 * np.linalg.inv(R2), t2)
 c3 = np.matmul(-1 * np.linalg.inv(R3), t3)
-
  
 def updateSequence(seqNum):
     global BALL_3D_COORDS_DIR
@@ -150,7 +149,6 @@ class Camera:
         self.speed = 0.01
         self.angularSpeed = 1
         self.distance = 3
-        self.fromXYPlaneAngle = 0
         self.fovy        = 100.0 
         self.aspectRatio = 1.0
         self.zNear       = .1 
@@ -163,7 +161,6 @@ class Camera:
         self.updatePos(up=True)
         
     def moveDown(self):
-        self.fromXYPlaneAngle -= 1
         self.updatePos(down=True)
         
     def moveLeft(self):
@@ -297,10 +294,10 @@ class Camera:
      
     def changeView(self, option):
         if option == 'x':
-            self.pos = np.array([-self.distance,0.0,1.0])
+            self.pos = np.array([-self.distance,0.0,0.0])
             
         elif option == 'y':
-            self.pos = np.array([0.0,-self.distance,1.0])
+            self.pos = np.array([0.0,-self.distance,0.0])
             
         elif option == '1':
             self.pos = np.copy(c1.reshape((1, 3))[:][0])
@@ -593,6 +590,70 @@ class GL3DPlot(QGLWidget):
         glVertex3f(-10, 10, ground)
         glVertex3f(-10,-10, ground)
         glVertex3f( 10,-10, ground)
+        glEnd()
+        
+        # draw stage
+        height = .69
+        y_coord = 1.5
+        glColor4f(.54, .27, .07, 1)
+        glBegin(GL_POLYGON)
+        glVertex3f(5, y_coord, ground)
+        glVertex3f(5, y_coord, ground+height)
+        glVertex3f(-5, y_coord, ground+height)
+        glVertex3f(-5, y_coord, ground)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glVertex3f(5, y_coord, ground+height)
+        glVertex3f(-5, y_coord, ground+height)
+        glVertex3f(-5, y_coord+3, ground+height)
+        glVertex3f(5, y_coord+3, ground+height)
+        glEnd()
+        
+        # draw barriers
+        glColor4f(.2, .2, .2, 1)
+        glPushMatrix()
+        glTranslatef(2, 1.5, -.74)
+        glRotatef(180, 0, 0, 1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(1, 0,0,-1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(15, 0,0,-1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(50, 0,0,-1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(14, 0,0,-1)
+        self.drawBarrier()
+        glPopMatrix()
+        
+        glPushMatrix()
+        glTranslatef(3, 1.5, -.74)
+        glRotatef(180, 0, 0, 1)
+        self.drawBarrier()
+        glTranslatef(1,5,0)
+        glRotatef(80, 0, 0, -1)
+        self.drawBarrier()
+        glTranslatef(0, 1.5, 0)
+        glRotatef(4, 0, 0, 1)
+        self.drawBarrier()
+        glPopMatrix()
+        
+        
+        
+        
+        
+    def drawBarrier(self):
+        length = 1.25
+        height = .5
+        glBegin(GL_POLYGON)
+        glVertex3f(0,0,0)
+        glVertex3f(0,length,0)
+        glVertex(0,length,height)
+        glVertex(0,0,height)
         glEnd()
         
         

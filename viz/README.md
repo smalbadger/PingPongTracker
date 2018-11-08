@@ -19,16 +19,23 @@ The visualization tool can be used for visualizing the calculated 3D coordinates
 1. Notice that there are 3 video frames on the right and a big 3D viewer box on the left with controls above it. 
     - Play and pause are for starting and stopping the video.
     - there are prev and next ('<' and '>' respectively) for both sequence and frame control.
-1. The 3D viewer takes some keyboard controls:
-    - W: move camera forward
-    - S: move camera backward
+1. The 3D viewer takes some keyboard controls. Note that camera movement in the 3D viewer is restricted to rotations about the origin with the up vector always in the positive Z direction. This also means that the camera cannot be placed directly on the Z axis for now.
+    - W: move camera up
+    - S: move camera down
     - A: move camera left
     - D: move camera right
-    - ARROW KEYS: look up, down, left, and right. (There's a bug which doesn't allow the camera to rotate more than 180 degrees total.)
-        - Note: moving is wonky right now. I'll try to fix it soon.
+    - ARROW UP: move camera in
+    - ARROW DOWN: move camera out
+    - x: align camera with the x-axis
+    - y: align camera with the y-axis
+    - 1: show view from camera 1
+    - 2: show view from camera 2
+    - 3: show view from camera 3
+    
 1. There are some keyboard controls that control both video and 3D viewer:
     - SHIFT: shows location of ball in all frames before and including the current frame. Toggling it will show only the current location of the ball.
-    - CTRL: Not yet assigned to anything, but some cool feature coming soon.
+    - CTRL: toggles background.
+        - Note: if SHIFT and CTRL are both toggled on and the ball cannot be triangulated in the current frame, all video frames and 3D viewer will be blank.
 1. Where do you need to put your files?
     - Store all of your files for 3D points in one directory and all files containing 2D points in another directory. Make sure you have a consistent naming convention for each of the files.
     - For 3D points, there should be 10 files in a directory and when they're sorted alphabetically, they should be in the same order as the video sequences. Look at the '../Test3DCoords/' directory as an example.

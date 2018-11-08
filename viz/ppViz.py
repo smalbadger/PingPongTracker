@@ -15,17 +15,20 @@ from threading import Event
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-from PySide2.QtWidgets import QApplication, QMainWindow
-from PySide2.QtOpenGL import *
 
+from PySide2.QtOpenGL import *
+from PySide2.QtWidgets import QApplication
+from PySide2.QtWidgets import QMainWindow
 from PySide2.QtWidgets import QWidget
 from PySide2.QtWidgets import QPushButton
 from PySide2.QtWidgets import QHBoxLayout
 from PySide2.QtWidgets import QVBoxLayout
+from PySide2.QtWidgets import QGridLayout
 from PySide2.QtWidgets import QLabel
 from PySide2.QtWidgets import QLineEdit
 from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QGroupBox
+from PySide2.QtWidgets import QSlider
 from PySide2.QtGui import QPixmap
 from PySide2.QtGui import QImage
 from PySide2.QtGui import QPalette
@@ -97,7 +100,6 @@ t3 = np.array([[-.060452],
 c1 = np.matmul(-1 * np.linalg.inv(R1), t1)
 c2 = np.matmul(-1 * np.linalg.inv(R2), t2)
 c3 = np.matmul(-1 * np.linalg.inv(R3), t3)
-
  
 def updateSequence(seqNum):
     global BALL_3D_COORDS_DIR
@@ -144,88 +146,173 @@ def getPointOneAway(p1, p2):
 
 class Camera:
     def __init__(self):
-        self.speed = 0.1
-        self.pitch = 0
-        self.yaw   = 0
-        self.distance = 10
-        self.theta = 0
-        self.phi = 0
-        self.center = np.array([0.0,0.0,0.0])
-        self.pos = np.array([0.0,0.0,6.0])
-        self.front = np.array([0.0,0.0,-1.0])
-        self.up = np.array([0.0,1.0, 0.0])
-        self.fovy        = 40.0 
+        self.speed = 0.01
+        self.angularSpeed = 1
+        self.distance = 3
+        self.fovy        = 100.0 
         self.aspectRatio = 1.0
-        self.zNear       = 0 
-        self.zFar        = 10
-    '''
+        self.zNear       = .1 
+        self.zFar        = 100
+        self.center = np.array([0.0,0.0,0.0])
+        self.changeView('x')
+        
+    
     def moveUp(self):
-        self.phi+=self.speed
-        self.updatePos()
+        self.updatePos(up=True)
         
     def moveDown(self):
-        self.phi-=self.speed
-        self.updatePos()
-      
-    def moveForward(self):
-        self.distance -= self.speed
-        self.updatePos()
-        
-    def moveBackward(self):
-        self.distance += self.speed
-        self.updatePos()
+        self.updatePos(down=True)
         
     def moveLeft(self):
-        self.theta -= self.speed
-        self.updatePos()
+        self.updatePos(left=True)
         
     def moveRight(self):
-        self.theta -= self.speed
-        self.updatePos() 
-    '''
-    def moveForward(self):
-        self.pos += self.speed * self.front
-        
-    def moveBackward(self):
-        self.pos -= self.speed * self.front
-        
-    def moveLeft(self):
-        self.pos -= np.cross(self.front, self.up) * self.speed
-        
-    def moveRight(self):
-        self.pos += np.cross(self.front, self.up) * self.speed
+        self.updatePos(right=True)
     
-    def lookUp(self):
-        self.pitch += 1
-        self.updateFront()
+    def moveForward(self):
+        if self.distance < 2 * self.speed:
+            return
+        self.pos += self.speed * self.front
+        self.updateDistance()
         
-    def lookDown(self):
-        self.pitch -= 1
-        self.updateFront()
+    def moveBackward(self):
+        if self.distance >10:
+            return
+        self.pos -= self.speed * self.front
+        self.updateDistance()
         
-    def lookLeft(self):
-        self.yaw -= 1
-        self.updateFront()
+    def updatePos(self, up=False, down=False, right=False, left=False):
+        if up and down:
+            print("can't move camera up and down at the same time")
+            return
+        if right and left:
+            print("can't move camera right and left at the same time")
+            return
+            
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
         
-    def lookRight(self):
-        self.yaw += 1
-        self.updateFront()
+        transformation = np.zeros(16).reshape((4,4))
+        rV = self.getRightVector()
+        toZAxis = np.array([-self.pos[0], self.pos[1], 0])
+        homogenized = np.ones(4)
+        homogenized[0:3] = self.pos
         
-    '''
-    def updatePos(self):
-        self.pos[0] = self.distance * np.cos(self.theta) * np.sin(self.phi)
-        self.pos[1] = self.distance * np.sin(self.theta) * np.sin(self.phi)
-        self.pos[2] = self.distance * np.cos(self.phi)
-        self.updateUp()
+        #rotate up or down
+        if up or down:
+            if self.pos[2] > 0:
+                angleFromPZ = np.rad2deg(self.angle(self.pos, np.array([0,0,1])))
+                angleFromNZ = 180 - angleFromPZ
+            else:
+                angleFromNZ = np.rad2deg(self.angle(self.pos, np.array([0,0,-1])))
+                angleFromPZ = 180 - angleFromNZ
+                
+            if angleFromPZ > 10 and up or angleFromNZ > 10 and down:
+                if up:
+                    v = rV
+                if down:
+                    v = -rV
+                
+                # move to origin
+                glTranslatef(0, 0, self.distance)
+                # turn back to look at the current point from origin
+                glRotatef(180, self.up[0], self.up[1], self.up[2])
+                # turn 1 click either up or down
+                glRotatef(self.angularSpeed, v[0], v[1], v[2])
+                # go travel the same distance away from the origin
+                glTranslatef(0, 0, self.distance)
+                
+                glGetDoublev(GL_MODELVIEW_MATRIX, transformation)
+                newPt = np.matmul(transformation, homogenized)
+                self.pos = newPt[0:3]/newPt[3]
+                self.pos *= (-self.distance/np.linalg.norm(self.pos))
+                self.updateFrontVector()
+                self.updateUpVector()
+                
+            else:
+                if up:
+                    print("Can't go up any more.")
+                if down:
+                    print("Can't go down any more.")
+                    
+        # rotate left or right
+        if left or right:
+            if left:
+                speed = -self.angularSpeed
+            elif right:
+                speed = self.angularSpeed
+                
+            # use x and y to get distance from z axis.
+            _2d = np.array([self.pos[0], self.pos[1]])
+            x = np.array([1, 0])
+            y = np.array([0, 1])
+            zDist = np.linalg.norm(_2d)
+            
+            if _2d[1]>0:
+                xAngle = self.angle(_2d, x, acute=True)
+            else:
+                xAngle = self.angle(_2d, x, acute=False)
+            
+            xAngle += np.deg2rad(speed)
+            newX = np.cos(xAngle) * zDist
+            newY = np.sin(xAngle) * zDist
+            self.pos[0] = newX
+            self.pos[1] = newY
+            self.updateFrontVector()
+            self.updateUpVector()
+            
+        glPopMatrix()
         
-    def updateUp(self):
-        perp = np.array([self.pos[1], self.pos[0], 0])
-        self.up = np.cross(perp,(self.center - self.pos))
-    '''    
-    def updateFront(self):
-        self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.cos(np.deg2rad(self.yaw))
-        self.front[1] = np.sin(np.deg2rad(self.pitch))
-        self.front[0] = np.cos(np.deg2rad(self.pitch)) * np.sin(np.deg2rad(self.yaw))
+    def updateUpVector(self):
+        right = self.getRightVector()
+        self.up = np.cross(right, self.front)
+    
+    def updateFrontVector(self):
+        self.front = self.center - self.pos
+        
+    def getRightVector(self):
+        toZAxis = np.array([-self.pos[0], -self.pos[1], 0])
+        if self.pos[2] < 0:
+            right = np.cross(toZAxis, self.front)
+        elif self.pos[2] > 0:
+            right = np.cross(self.front, toZAxis)
+        else:
+            toZAxis[2] = 1
+            right = np.cross(self.front, toZAxis)
+        return right
+        
+    def angle(self, v1, v2, acute=True):
+        angle = np.arccos(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
+        if (acute == True):
+            return angle
+        else:
+            return 2 * np.pi - angle
+            
+        
+    def updateDistance(self):
+        self.distance = np.sqrt(self.pos[0]**2 + self.pos[1]**2 + self.pos[2]**2)
+     
+    def changeView(self, option):
+        if option == 'x':
+            self.pos = np.array([-self.distance,0.0,0.0])
+            
+        elif option == 'y':
+            self.pos = np.array([0.0,-self.distance,0.0])
+            
+        elif option == '1':
+            self.pos = np.copy(c1.reshape((1, 3))[:][0])
+            
+        elif option == '2':
+            self.pos = np.copy(c2.reshape((1, 3))[:][0])
+            
+        elif option == '3':
+            self.pos = np.copy(c3.reshape((1, 3))[:][0])
+            
+        self.updateFrontVector()
+        self.updateUpVector()
+        self.updateDistance()
+    
+    
 
 class GL3DPlot(QGLWidget):
     def __init__(self, parent):
@@ -237,19 +324,55 @@ class GL3DPlot(QGLWidget):
     def paintGL(self):
         ''' Drawing routine '''
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glLoadIdentity()
-        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+        
         self.lookAt()
         
         if not CTRL:
-            self.drawAxes()
-            self.drawCameras()
+            self.drawEnvironment()
+            #self.drawAxes()
             self.drawTable()
+            self.drawCameras()
+            
+            
         self.drawBalls()
         
         glEnableClientState(GL_VERTEX_ARRAY)
         
         glFlush()
+       
+    def resizeGL(self, w, h):
+        '''
+        Resize the GL window 
+        '''
+        glViewport(0, 0, w, h)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+    
+    def initializeGL(self):
+        '''
+        Initialize GL
+        '''
+        glutInit()
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glClearColor(1.0, 1.0, 1.0, 1.0)
+        glClearDepth(1.0)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        
+        glMatrixMode(GL_MODELVIEW)
+        self.lookAt()
+        
+    def lookAt(self):
+        c = self.cam
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+        gluLookAt(   c.pos[0],    c.pos[1],    c.pos[2], 
+                  c.center[0], c.center[1], c.center[2],
+                      c.up[0],     c.up[1],     c.up[2])
+        glMatrixMode(GL_MODELVIEW)
         
     def drawBalls(self):
         global READER_3D
@@ -284,19 +407,142 @@ class GL3DPlot(QGLWidget):
     def drawTable(self):
         length = 2.74
         width = 1.525
-        height = 0
-        glPushMatrix()
+        height = 0.76
+        offset = .0001
+        
+        # draw shadow
         glBegin(GL_POLYGON)
-        glVertex3f(-length/2, -width/2, height)
-        glVertex3f( length/2, -width/2, height)
-        glVertex3f( length/2,  width/2, height)
-        glVertex3f(-length/2,  width/2, height)
+        glColor4f(0,0,0,.8); glVertex3f( 0,        0,      -height+offset)
+        glColor4f(0,0,0,.1); glVertex3f( length/2, 0,      -height+offset)
+        glColor4f(0,0,0, 0); glVertex3f( length/2, width/2,-height+offset)
+        glColor4f(0,0,0,.1); glVertex3f( 0,        width/2,-height+offset)
         glEnd()
-        glPopMatrix()
+        
+        glBegin(GL_POLYGON)
+        glColor4f(0,0,0,.8); glVertex3f( 0,        0,      -height+offset)
+        glColor4f(0,0,0,.1); glVertex3f( 0,       -width/2,-height+offset)
+        glColor4f(0,0,0, 0); glVertex3f( length/2,-width/2,-height+offset)
+        glColor4f(0,0,0,.1); glVertex3f( length/2, 0,      -height+offset)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glColor4f(0,0,0,.8); glVertex3f( 0,        0,      -height+offset)
+        glColor4f(0,0,0,.1); glVertex3f(-length/2, 0,      -height+offset)
+        glColor4f(0,0,0, 0); glVertex3f(-length/2,-width/2,-height+offset)
+        glColor4f(0,0,0,.1); glVertex3f( 0,       -width/2,-height+offset)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glColor4f(0,0,0,.8); glVertex3f( 0,        0,      -height+offset)
+        glColor4f(0,0,0,.1); glVertex3f( 0,        width/2,-height+offset)
+        glColor4f(0,0,0, 0); glVertex3f(-length/2, width/2,-height+offset)
+        glColor4f(0,0,0,.1); glVertex3f(-length/2, 0,      -height+offset)
+        glEnd()
+            
+        
+        #draw legs
+        xDist = 1
+        yDist = .65
+        glColor4f(0,0,0,1)
+        for x, y in [(xDist, yDist), (xDist, -yDist), (-xDist, yDist), (-xDist, -yDist)]:
+            for i in (1, 4):
+                glPushMatrix()
+                glTranslatef(x/i, y, 0)
+                glScalef(.01, .01, -.38)
+                self.drawUnitCube()
+                glPopMatrix()
+        
+        # draw table top
+        glColor4f(.1,.1,1,1)
+        glBegin(GL_POLYGON)
+        glVertex3f(-length/2, -width/2, 0)
+        glVertex3f( length/2, -width/2, 0)
+        glVertex3f( length/2,  width/2, 0)
+        glVertex3f(-length/2,  width/2, 0)
+        glEnd()
+        
+        # draw lines on table
+        lWidth = 0.025
+        glColor4f(1, 1, 1, 1)
+        glBegin(GL_POLYGON)
+        glVertex(-length/2, lWidth/2, offset)
+        glVertex( length/2, lWidth/2, offset)
+        glVertex( length/2,-lWidth/2, offset)
+        glVertex(-length/2,-lWidth/2, offset)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glVertex(-length/2, width/2, offset)
+        glVertex( length/2, width/2, offset)
+        glVertex( length/2, width/2-lWidth, offset)
+        glVertex(-length/2, width/2-lWidth, offset)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glVertex(-length/2, -width/2, offset)
+        glVertex( length/2, -width/2, offset)
+        glVertex( length/2, -width/2+lWidth, offset)
+        glVertex(-length/2, -width/2+lWidth, offset)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glVertex(-length/2, -width/2, offset)
+        glVertex(-length/2,  width/2, offset)
+        glVertex(-length/2+lWidth, width/2, offset)
+        glVertex(-length/2+lWidth, -width/2, offset)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glVertex(length/2, -width/2, offset)
+        glVertex(length/2,  width/2, offset)
+        glVertex(length/2-lWidth, width/2, offset)
+        glVertex(length/2-lWidth, -width/2, offset)
+        glEnd()
+        
+        # draw net 
+        glColor4f(1, 1, 1, 1)
+        glBegin(GL_POLYGON)
+        glVertex(0, -width/2, .1525)
+        glVertex(0,  width/2, .1525)
+        glVertex(0,  width/2, .1425)
+        glVertex(0, -width/2, .1425)
+        glEnd()
+        
+        glColor4f(0,0,0,.5)
+        glBegin(GL_LINES)
+        for i in np.arange(.01, .1425, .005):
+            glVertex3f(0, -width/2, i)
+            glVertex3f(0,  width/2, i)
+            
+        for i in np.arange(-width/2, width/2, .005):
+            glVertex3f(0, i, .1425)
+            glVertex3f(0, i, .01)
+            
+        glEnd()
+        
+       
+        
+        # draw net posts
+        for i in (0,1):
+            glPushMatrix()
+            glLoadIdentity()
+            if i==0:
+                glRotate(180, 0,0,1)
+            glTranslatef(0,width/2,0)
+            glScalef(.01, .01, -.02)
+            glRotatef(90, -1, 0, 0)
+            glColor4f(.1,.1,.7,1)
+            self.drawUnitCube()
+            glRotatef(90, -1, 0, 0)
+            glScalef(.4, .4, 4)
+            self.drawUnitCube()
+            glPopMatrix()
+       
+        
+        
         
     def drawAxes(self):
         #draw x, y, and z lines
-        glPushMatrix()
         glColor4f(0,0,0,1)
         glBegin(GL_LINES)
         glVertex3f(0, 0,  100)
@@ -306,7 +552,6 @@ class GL3DPlot(QGLWidget):
         glVertex3f( 100, 0, 0)
         glVertex3f(-100, 0, 0)
         glEnd()
-        glPopMatrix()
         
     def drawCameras(self):
         glPushMatrix()
@@ -336,107 +581,148 @@ class GL3DPlot(QGLWidget):
         glEnd()
         glPopMatrix()
         
+    def drawEnvironment(self):
+        # draw ground
+        ground = -0.76
+        glColor4f(.87, .72, .53, 1)
+        glBegin(GL_POLYGON)
+        glVertex3f( 10, 10, ground)
+        glVertex3f(-10, 10, ground)
+        glVertex3f(-10,-10, ground)
+        glVertex3f( 10,-10, ground)
+        glEnd()
+        
+        # draw stage
+        height = .69
+        y_coord = 1.5
+        glColor4f(.54, .27, .07, 1)
+        glBegin(GL_POLYGON)
+        glVertex3f(5, y_coord, ground)
+        glVertex3f(5, y_coord, ground+height)
+        glVertex3f(-5, y_coord, ground+height)
+        glVertex3f(-5, y_coord, ground)
+        glEnd()
+        
+        glBegin(GL_POLYGON)
+        glVertex3f(5, y_coord, ground+height)
+        glVertex3f(-5, y_coord, ground+height)
+        glVertex3f(-5, y_coord+3, ground+height)
+        glVertex3f(5, y_coord+3, ground+height)
+        glEnd()
+        
+        # draw barriers
+        glColor4f(.2, .2, .2, 1)
+        glPushMatrix()
+        glTranslatef(2, 1.5, -.74)
+        glRotatef(180, 0, 0, 1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(1, 0,0,-1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(15, 0,0,-1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(50, 0,0,-1)
+        self.drawBarrier()
+        glTranslatef(0,1.26,0)
+        glRotatef(14, 0,0,-1)
+        self.drawBarrier()
+        glPopMatrix()
+        
+        glPushMatrix()
+        glTranslatef(3, 1.5, -.74)
+        glRotatef(180, 0, 0, 1)
+        self.drawBarrier()
+        glTranslatef(1,5,0)
+        glRotatef(80, 0, 0, -1)
+        self.drawBarrier()
+        glTranslatef(0, 1.5, 0)
+        glRotatef(4, 0, 0, 1)
+        self.drawBarrier()
+        glPopMatrix()
+        
+        
+        
+        
+        
+    def drawBarrier(self):
+        length = 1.25
+        height = .5
+        glBegin(GL_POLYGON)
+        glVertex3f(0,0,0)
+        glVertex3f(0,length,0)
+        glVertex(0,length,height)
+        glVertex(0,0,height)
+        glEnd()
+        
+        
+    def drawUnitCube(self):
+        pts = [[ 1, 1, 1],
+               [ 1, 1,-1],
+               [ 1,-1, 1],
+               [ 1,-1,-1],
+               [-1, 1, 1],
+               [-1, 1,-1],
+               [-1,-1, 1],
+               [-1,-1,-1]]
+        
+        for i in (-1, 1):
+            for j in (0, 1, 2):
+                c = [k for k in pts if k[j] == i]
+                glBegin(GL_POLYGON)
+                for k in (0, 1, 3, 2):
+                    cpy = c[k][:]
+                    cpy[2]+=1
+                    glVertex3f(cpy[0], cpy[1], cpy[2]);
+                    glVertex3f(cpy[0], cpy[1], cpy[2]);
+                    glVertex3f(cpy[0], cpy[1], cpy[2]);
+                    glVertex3f(cpy[0], cpy[1], cpy[2]);
+                glEnd()
+        
     def draw3DArrow(self, length=5):
         gluCylinder(gluNewQuadric(), 1, 1, length, 10, 10)
         glTranslatef(0, 0, length)
         gluCylinder(gluNewQuadric(), 3, 0, length/5, 100, 100)
 
-    def resizeGL(self, w, h):
-        '''
-        Resize the GL window 
-        '''
-        glViewport(0, 0, w, h)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(40.0, 1.0, 1.0, 30.0)
     
-    def initializeGL(self):
-        '''
-        Initialize GL
-        '''
-        glutInit()
-        glClearColor(1.0, 1.0, 1.0, 1.0)
-        glClearDepth(1.0)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        
-        glMatrixMode(GL_MODELVIEW)
-        self.lookAt()
-        
-    def lookAt(self):
-        c = self.cam
-        center = c.pos + c.front
-        gluLookAt(c.pos[0], c.pos[1], c.pos[2], 
-                  center[0], center[1], center[2],
-                  c.up[0],  c.up[1],  c.up[2])
-        
     def keyPressEvent(self, event):
         global SHIFT
         global CTRL
-        #print(event.key())
+        key = event.key()
+        #print(key)
               
-        if event.key() == 16777248:
+        if key == 16777248:
             SHIFT = not SHIFT
-        if event.key() == 16777249:
+        if key == 16777249:
             CTRL = not CTRL
               
-        if event.key() == 87:
-            self.cam.moveForward()
-            #self.cam.moveUp()
-        if event.key() == 83:
-            self.cam.moveBackward()
-            #self.cam.moveDown()
-        if event.key() == 65:
+        if key == 87:
+            self.cam.moveUp()
+        if key == 83:
+            self.cam.moveDown()
+        if key == 65:
             self.cam.moveLeft()
-        if event.key() == 68:
+        if key == 68:
             self.cam.moveRight()
             
-        if event.key() == 16777235:
-            self.cam.lookUp()
-            #self.cam.moveForward()
-        if event.key() == 16777237:
-            self.cam.lookDown()
-            #self.cam.moveBackward()
-        if event.key() == 16777236:
-            self.cam.lookRight()
-        if event.key() == 16777234:
-            self.cam.lookLeft()
+        if key == 16777235:
+            self.cam.moveForward()
+        if key == 16777237:
+            self.cam.moveBackward()
+            
+        if key == 88:
+            self.cam.changeView('x')
+        if key == 89:
+            self.cam.changeView('y')
+        if key == 49:
+            self.cam.changeView('1')
+        if key == 50:
+            self.cam.changeView('2')
+        if key == 51:
+            self.cam.changeView('3')
         
         self.updateGL()
-        
-        
-    def mouse(self, button, state, x, y):
-        global MOUSE_BUTTON
-        global MOVING
-        global START_X
-        global START_Y
-        print("Mouse registered")
-        if state == GLUT_DOWN:
-            MOUSE_BUTTON = button
-            MOVING = 1
-            START_X = x
-            START_Y = y
-        
-        if state == GLUT_UP:
-            MOUSE_BUTTON = button
-            MOVING = 0
-
-    def motion(self, x, y):
-        global MOVING
-        global MOUSE_BUTTON
-        global ANGLE
-        global ANGLE2
-        global START_X
-        global START_Y
-        print("Motion registered")
-        if MOVING:
-            if MOUSE_BUTTON == GLUT_LEFT_BUTTON:
-                ANGLE += (x - START_X)
-                angle2 += (y - START_Y)
-            START_X = x
-            START_Y = y
-            self.updateGL()
-            
         
 class VideoFrameDisplay(QGroupBox):
     def __init__(self, cName, parent):
@@ -453,7 +739,6 @@ class VideoFrameDisplay(QGroupBox):
         self.imgBox = QLabel()
         
     def createLayout(self):
-        
         self.mainBox = QVBoxLayout()
         self.mainBox.addWidget(self.pathLabel)
         self.mainBox.addWidget(self.imgBox)
@@ -691,6 +976,96 @@ class PlayThread(Thread):
             pass
         Thread.join(self, None)
             
+            
+class SettingsMenu(QMainWindow):
+    '''popup window for user to change settings'''
+    def __init__(self):
+        QMainWindow.__init__(self)
+        self.createElements()
+        self.createLayout()
+        self.createActions()
+        
+    def createElements(self):
+        global VID_DIR
+        global BALL_3D_COORDS_DIR
+        global BALL_2D_COORDS_DIR
+        global FRAME_RATE
+        
+        self.videoFileDirLabel = QLabel("Video Files Location: ")
+        self.videoFileDirEdit  = QLineEdit()
+        self.videoFileDirEdit.setText(VID_DIR)
+        self.videofileDirBtn = QPushButton("change")
+    
+        self._3DFileDirLabel = QLabel("3D Files Location: ")
+        self._3DFileDirEdit  = QLineEdit()
+        self._3DFileDirEdit.setText(BALL_3D_COORDS_DIR)
+        self._3DfileDirBtn = QPushButton("change")
+        
+        self._2DFileDirLabel = QLabel("2D Files Location: ")
+        self._2DFileDirEdit  = QLineEdit()
+        self._2DFileDirEdit.setText(BALL_2D_COORDS_DIR)
+        self._2DfileDirBtn = QPushButton("change")
+        
+        self.frameRateLabel = QLabel("Frame Rate: ")
+        self.frameRateLabel_2 = QLabel(str(FRAME_RATE))
+        self.frameRateChanger = QSlider()
+        self.frameRateChanger.setMinimum(1)
+        self.frameRateChanger.setMaximum(10)
+        self.frameRateChanger.setTickInterval(0.5)
+        
+        #add toggle buttons for x, y, and z axis grids here
+        
+        
+    def createLayout(self):
+        self.mainLayout = QGridLayout()
+        
+        self.mainLayout.addWidget(self.videoFileDirLabel)
+        self.mainLayout.addWidget(self.videoFileDirEdit)
+        self.mainLayout.addWidget(self.videoFileDirBtn)
+        
+        self.mainLayout.addWidget(self._3DFileDirLabel)
+        self.mainLayout.addWidget(self._3DFileDirEdit)
+        self.mainLayout.addWidget(self._3DFileDirBtn)
+        
+        self.mainLayout.addWidget(self._2DFileDirLabel)
+        self.mainLayout.addWidget(self._2DFileDirEdit)
+        self.mainLayout.addWidget(self._2DFileDirBtn)
+        
+        self.mainLayout.addWidget(self.frameRateLabel)
+        self.mainLayout.addWidget(self.frameRateLabel2)
+        self.mainLayout.addWidget(self.frameRateChanger)
+        
+    def createActions(self):
+        self.videoFileDirBtn.clicked.connect(onVideoFileDirChanged)
+        self._3DFileDirBtn.clicked.connect(on_3DFileDirChanged)
+        self._2DFileDirBtn.clicked.connect(on_2DFileDirChanged)
+        self.frameRateChanger.moved.connect(onFrameRateChanged)
+        
+    def onVideoFileDirChanged(self):
+        global VID_DIR
+        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        VID_DIR = self.videoFileDirEdit.text()
+        
+    def on_3DFileDirChanged(self):
+        global BALL_3D_COORDS_DIR
+        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        BALL_3D_COORDS_DIR = self._3DFileDirEdit.text()
+        
+    def on_2DFileDirChanged(self):
+        global BALL_2D_COORDS_DIR
+        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        BALL_2D_COORDS_DIR = self._2DFileDirEdit.text()
+        
+    def checkPathValidity(self, path, expectedNumFiles):
+        try:
+            files = sys.listDir(path)
+            if len(files) == expectedNumFiles:
+                return True
+            else:
+                return False
+        except:
+            return False
+        return False
 
 class PPApplication(QMainWindow):
     ''' main window for the Ping Pong Application '''
@@ -705,7 +1080,6 @@ class PPApplication(QMainWindow):
     def closeEvent(self, event):
         self.dash.onPause()
         sys.exit(0)
-
 
 if __name__ == "__main__":
     app = QApplication(['Ping Pong Flight Visualization'])

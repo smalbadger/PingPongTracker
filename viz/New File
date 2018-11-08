@@ -1,0 +1,6 @@
+glColor4f(.2, .2, .2, 1)
+        glPushMatrix()
+        glTranslatef(-2, 1, 0)
+        glScalef(.01, .25, .5)
+        self.drawUnitCube()
+        glPopMatrix()

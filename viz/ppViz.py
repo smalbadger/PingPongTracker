@@ -154,8 +154,10 @@ class Camera:
         self.zNear       = .1 
         self.zFar        = 100
         self.center = np.array([0.0,0.0,0.0])
-        self.changeView('x')
-        
+        self.pos = np.array([-self.distance,0.0,1.0])
+        self.updateFrontVector()
+        self.updateUpVector()
+        self.updateDistance()
     
     def moveUp(self):
         self.updatePos(up=True)
@@ -355,8 +357,9 @@ class GL3DPlot(QGLWidget):
         '''
         glutInit()
         glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glClearColor(1.0, 1.0, 1.0, 1.0)
+        glClearColor(.2,.3,.0, 1.0)
         glClearDepth(1.0)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -447,13 +450,13 @@ class GL3DPlot(QGLWidget):
         for x, y in [(xDist, yDist), (xDist, -yDist), (-xDist, yDist), (-xDist, -yDist)]:
             for i in (1, 4):
                 glPushMatrix()
-                glTranslatef(x/i, y, 0)
+                glTranslatef(x/i, y, -.00001)
                 glScalef(.01, .01, -.38)
                 self.drawUnitCube()
                 glPopMatrix()
         
         # draw table top
-        glColor4f(.1,.1,1,1)
+        glColor4f(.1,.1,.8,1)
         glBegin(GL_POLYGON)
         glVertex3f(-length/2, -width/2, 0)
         glVertex3f( length/2, -width/2, 0)

@@ -7,14 +7,14 @@ OUTPUT_PATH = './triangulation_output/';
 % Read File List
 FILE_LIST_NAME = 'FileList.csv';
 [num, FILE_VIDEO_LIST] = xlsread(FILE_LIST_NAME);
-FILE_ANNOTATION_LIST = get_file_annotation_list(FILE_VIDEO_LIST);
+FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST);
 
-% Set CAMERA constants
+% Camera Properties
 N_TRAJECTORIES = size(FILE_ANNOTATION_LIST, 1);
 N_CAMERAS = size(FILE_ANNOTATION_LIST, 2);
-INTRINSIC_MATRICES = get_intrinsic_matrices();
-ROTATION_MATRICES = get_rotation_matrices();
-TRANSLATION_VECTORS = get_translation_vectors();
+INTRINSIC_MATRICES = getInstrinsicMatrices();
+Rs = getRs();
+ts = getTs();
 
 % Constants for reading from file
 COL_NUM_FRAME = 1;
@@ -35,22 +35,22 @@ drawCamAxis();
 for trajectoryIdx = 1:N_TRAJECTORIES
     % for trajectoryIdx = 1 : 1
     % Read 2D data from file
-    cam_file_1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
-    cam_file_2 = FILE_ANNOTATION_LIST{trajectoryIdx, 2};
-    cam_file_3 = FILE_ANNOTATION_LIST{trajectoryIdx, 3};
-    [data_1, text] = xlsread(cam_file_1);
-    [data_2, text] = xlsread(cam_file_2);
-    [data_3, text] = xlsread(cam_file_3);
+    camFile1 = FILE_ANNOTATION_LIST{trajectoryIdx, 1};
+    camFile2 = FILE_ANNOTATION_LIST{trajectoryIdx, 2};
+    camFile3 = FILE_ANNOTATION_LIST{trajectoryIdx, 3};
+    [data1, text] = xlsread(camFile1);
+    [data2, text] = xlsread(camFile2);
+    [data3, text] = xlsread(camFile3);
 
-    nRows = size(data_1, 1);
+    nRows = size(data1, 1);
     result = zeros(nRows, 4);
     colHeader = {'frame', 'x', 'y', 'z'};
 
     for rowIdx = 1:nRows
-        frameData1 = data_1(rowIdx, :);
-        frameData2 = data_2(rowIdx, :);
-        frameData3 = data_3(rowIdx, :);
-        frame = data_1(rowIdx);
+        frameData1 = data1(rowIdx, :);
+        frameData2 = data2(rowIdx, :);
+        frameData3 = data3(rowIdx, :);
+        frame = data1(rowIdx);
 
         % Don't process if any coord pt is not defined
         if (any(isnan(frameData1), 2) || any(isnan(frameData2), 2) || any(isnan(frameData3), 2))
@@ -58,26 +58,26 @@ for trajectoryIdx = 1:N_TRAJECTORIES
             continue
         end
 
-        dirToImg1 = get_direction_to_image_pt(frameData1(COL_NUM_UNDISTORT_U), frameData1(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{1});
-        imgCoord1 = get_image_coord(ROTATION_MATRICES{1}, TRANSLATION_VECTORS{1}, dirToImg1);
+        dirToImg1 = getDirectionToImagePt(frameData1(COL_NUM_UNDISTORT_U), frameData1(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{1});
+        imgCoord1 = getImageCoord(Rs{1}, ts{1}, dirToImg1);
 
-        dirToImg2 = get_direction_to_image_pt(frameData2(COL_NUM_UNDISTORT_U), frameData2(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{2});
-        imgCoord2 = get_image_coord(ROTATION_MATRICES{2}, TRANSLATION_VECTORS{2}, dirToImg2);
+        dirToImg2 = getDirectionToImagePt(frameData2(COL_NUM_UNDISTORT_U), frameData2(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{2});
+        imgCoord2 = getImageCoord(Rs{2}, ts{2}, dirToImg2);
 
-        dirToImg3 = get_direction_to_image_pt(frameData3(COL_NUM_UNDISTORT_U), frameData3(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{3});
-        imgCoord3 = get_image_coord(ROTATION_MATRICES{3}, TRANSLATION_VECTORS{3}, dirToImg3);
+        dirToImg3 = getDirectionToImagePt(frameData3(COL_NUM_UNDISTORT_U), frameData3(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{3});
+        imgCoord3 = getImageCoord(Rs{3}, ts{3}, dirToImg3);
 
-        startPoints = [TRANSLATION_VECTORS{1}.'; TRANSLATION_VECTORS{2}.'; TRANSLATION_VECTORS{3}.'; ];
+        startPoints = [ts{1}.'; ts{2}.'; ts{3}.'; ];
         endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.'; ];
 
-        [P_intersect, distances] = lineIntersect3D(startPoints, endPoints);
+        [intersectionPt, distances] = lineIntersect3D(startPoints, endPoints);
 
-        result(rowIdx, :) = [frame, P_intersect];
+        result(rowIdx, :) = [frame, intersectionPt];
     end
 
     comet3(result(:, 2), result(:, 3), result(:, 4));
     output = [colHeader; num2cell(result)];
-    outputFilePath = strcat(OUTPUT_PATH, extractAfter(cam_file_1, '/'));
+    outputFilePath = strcat(OUTPUT_PATH, extractAfter(camFile1, '/'));
 
     fid = fopen(outputFilePath, 'w');
     fprintf(fid, '%s,', colHeader{1:3});
@@ -88,11 +88,10 @@ for trajectoryIdx = 1:N_TRAJECTORIES
     % Write 3D data to file
 end
 
-
 % ================================================ Helper Functions ================================================
 
 % Returns corresponding 2D data file locations from File List
-function FILE_ANNOTATION_LIST = get_file_annotation_list(FILE_VIDEO_LIST)
+function FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST)
     FILE_ANNOTATION_LIST = cell(size(FILE_VIDEO_LIST));
 
     for fileIdx = 1:numel(FILE_VIDEO_LIST)
@@ -105,7 +104,7 @@ function FILE_ANNOTATION_LIST = get_file_annotation_list(FILE_VIDEO_LIST)
 
 end
 
-function INTRINSIC_MATRICES = get_intrinsic_matrices()
+function INTRINSIC_MATRICES = getInstrinsicMatrices()
     INTRINSIC_MATRIX_CAMERA_1 = [
                                 870.14531487461625, 0, 949.42001822880479;
                                 0, 870.14531487461625, 487.20049852775117;
@@ -124,8 +123,9 @@ function INTRINSIC_MATRICES = get_intrinsic_matrices()
     INTRINSIC_MATRICES = {INTRINSIC_MATRIX_CAMERA_1, INTRINSIC_MATRIX_CAMERA_2, INTRINSIC_MATRIX_CAMERA_3};
 end
 
-function ROTATION_MATRICES = get_rotation_matrices()
+function Rs = getRs()
     R1 = [
+
         .96428667991264605, -.26484969138677328, -.0024165916859785336;
         -.089795446022112396, -.31832382771611223, -.94371961862719200;
         .24917459103354755, .91023325674273947, -.33073772313234923;
@@ -140,11 +140,11 @@ function ROTATION_MATRICES = get_rotation_matrices()
         .091201836523849486, .65687400820094410, -.74846426926387233;
         .028698466908561492, -.75301812454631367, -.65737363964632056;
         ];
-    ROTATION_MATRICES = {R1, R2, R3};
+    Rs = {R1, R2, R3};
 end
 
 % TODO: CORRECT TRANSLATION VECTORS
-function TRANSLATION_VECTORS = get_translation_vectors()
+function ts = getTs()
     t1 = [
         .13305621037591506;
         -.25319578738559911;
@@ -164,26 +164,26 @@ function TRANSLATION_VECTORS = get_translation_vectors()
         ];
 
     % As stated in the email, need to change to correct translation matrix
-    Rs = get_rotation_matrices();
+    Rs = getRs();
     t1 = -inv(Rs{1}) * t1;
     t2 = -inv(Rs{2}) * t2;
     t3 = -inv(Rs{3}) * t3;
-    TRANSLATION_VECTORS = {t1, t2, t3};
+    ts = {t1, t2, t3};
 end
 
 % Returns direction vector to image point relative to camera coord
-function dirToImg = get_direction_to_image_pt(u, v, intrinsicMatrix)
+function dirToImg = getDirectionToImagePt(u, v, intrinsicMatrix)
     dirToImg = inv(intrinsicMatrix) * [u; v; 1];
 end
 
 % Returns coordinates of image point relative to real world coordinates
-function imgCoord = get_image_coord(R, t, dirToImg)
+function imgCoord = getImageCoord(R, t, dirToImg)
     imgCoord = t + inv(R) * dirToImg;
 end
 
 function drawCamAxis()
-    ts = get_translation_vectors();
-    Rs = get_rotation_matrices();
+    ts = getTs();
+    Rs = getRs();
 
     for idx = 1:3
         R = Rs{idx};
@@ -200,7 +200,7 @@ function drawCamAxis()
         xlabel('X');
         ylabel('Y');
         zlabel('Z');
-        set(gca,'CameraPosition',[2 2 2]);
+        set(gca, 'CameraPosition', [2 2 2]);
         text(t(1), t(2), t(3), strcat('CAM ', num2str(idx)));
         hold on
     end

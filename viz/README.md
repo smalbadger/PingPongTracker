@@ -10,6 +10,7 @@ Welcome to the visualization software for the final project. This document descr
     - > pip3 install imageio
     - > pip3 install PyOpenGL PyOpenGL_accelerate
     - > sudo apt-get install python-opengl
+    - > imageio_download_bin ffmpeg
     * note: I use pip3, but if you don't have it, try just pip.
 
 ## Usage

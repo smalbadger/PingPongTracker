@@ -2,14 +2,21 @@
 close all
 clear all
 
-videos = {'videofiles/CAM1-GOPR0333-26198.mp4';};
+% ================== Parameters ================== %
+% Specify directory where videos are stored
+vid_dir = '..\TestVideos\';
+% Specify directory where annotation results are stored
+res_dir = '.\results\';
 
+% ==================== Script ==================== %
+videos = dir(strcat(vid_dir,'*.mp4'))
 for idx = 1 : size(videos)
+    disp(strcat('Video no.: ', num2str(idx)))
     %{
     Step 1: Read in the test video
     %}
     disp('Reading in the current test video')
-    vid_name = videos{idx};
+    vid_name = strcat(vid_dir,videos(idx).name)
     vid = VideoReader(vid_name);
     disp('Video read!')
     
@@ -113,7 +120,6 @@ for idx = 1 : size(videos)
     %}
     disp('Detecting the centroid of ball cluster...')
     coords = zeros(framecount,3);
-    %coords = table('frame','x','y'); % For formatting issues
     for f_idx = 1: f_cols
         curr_frame = frames{f_idx};
         % Find dimensions of current frame
@@ -127,8 +133,12 @@ for idx = 1 : size(videos)
         % Find optimal number of clusters for k-means clustering
         eva = evalclusters(nz_coords,'kmeans','silhouette','KList',1:5);
         opt_K = eva.OptimalK;
+        % Error Catching
+        if isnan(opt_K)
+            opt_K = 1;
+        end
         % Perform K-means clustering
-        [index, C] = kmeans(nz_coords,opt_K);
+        [index, C, sumd] = kmeans(nz_coords,opt_K);
         % Find sorted (via percentage) composition (i.e. how many datapoints) of each cluster
         sorted_composition = sortrows(tabulate(index),3,'descend');
         % Find the largest cluster (i.e. most likely to be from ball)
@@ -146,9 +156,8 @@ for idx = 1 : size(videos)
     Step 7: Export coordinates to file (.csv)
     %}
     disp('Exporting coordinates to CSV file')
-    dirName = './results';
-    mkdir(dirName);
-    baseName = strcat('./results/vid',num2str(idx));
+    mkdir(res_dir);
+    baseName = strcat(strcat(res_dir,'vid'),num2str(idx));
     csvwrite(strcat(baseName,'_coords.csv'),coords);
     disp('Export Completed!')
 end

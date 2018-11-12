@@ -1,0 +1,1799 @@
+>> ballTracker
+
+videos = 
+
+  30×1 struct array with fields:
+
+    name
+    folder
+    date
+    bytes
+    isdir
+    datenum
+
+
+ans =
+
+    30     1
+
+Video no.:1
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0333-21157.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   267
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:2
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0333-25390.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   274
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:3
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0333-28114.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   272
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:4
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0333-31464.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   273
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:5
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0333-34217.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   258
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:6
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0334-14238.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   258
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:7
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0334-16875.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   272
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:8
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0334-26813.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   274
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:9
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0334-36441.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   263
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:10
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM1-GOPR0334-6600.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   254
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:11
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0288-21180.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   267
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:12
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0288-25413.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   274
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:13
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0288-28137.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   272
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:14
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0288-31487.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   273
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:15
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0288-34240.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   258
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:16
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0289-14201.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   258
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:17
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0289-16838.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   272
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:18
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0289-26776.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   274
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:19
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0289-36404.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   263
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:20
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM2-GOPR0289-6563.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   254
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:21
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0342-21108.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   267
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:22
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0342-25341.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   274
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:23
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0342-28065.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   272
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:24
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0342-31415.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   273
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:25
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0342-34168.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   258
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:26
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0343-14117.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   258
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:27
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0343-16754.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   272
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:28
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0343-26692.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   274
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:29
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0343-36320.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   263
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+Video no.:30
+Reading in the current test video
+
+vid_name =
+
+    '..\TestVideos\CAM3-GOPR0343-6479.mp4'
+
+Video read!
+Obtaining common video attributes for subsequent use
+Video attributes obtained!
+
+framecount =
+
+   254
+
+Static Background is obtained!
+Subtracting background from frame
+Background removed!
+Scaling and reassigning colour values according to extent of difference
+Scaling and reassignment completed!
+Detecting the centroid of ball cluster...
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Warning: Values greater than the value of the
+NumObservations property will be removed from
+KLIST. 
+> In clustering.evaluation.ClusterCriterion/checkKList (line 242)
+  In clustering.evaluation.ClusterCriterion (line 451)
+  In clustering.evaluation.SilhouetteEvaluation (line 134)
+  In evalclusters (line 188)
+  In ballTracker (line 135) 
+Centroid coordinates have been obtained!
+Exporting coordinates to CSV file
+Warning: Directory already exists. 
+> In ballTracker (line 160) 
+Export Completed!
+>> 

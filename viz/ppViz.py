@@ -45,8 +45,10 @@ import traceback
 #############################################################################
 #                            Globals Begin                                  #
 #############################################################################
-SHIFT = False   # toggle showing all previous ball positions or just the current one.
+SHIFT = False   # toggle showing all previous ball positions or just the current
 CTRL  = False
+
+TABLE_Z_OFFSET = 0.14
 
 MOUSE_BUTTON = None
 MOVING = None
@@ -117,11 +119,13 @@ def updateSequence(seqNum):
     print("Switched to sequence: {}".format(CUR_SEQUENCE))
     print("# of frames: {}".format(NUMBER_OF_FRAMES))
     
-    _3DCoordFiles = sorted([BALL_3D_COORDS_DIR+name for name in os.listdir(BALL_3D_COORDS_DIR)])
+    dir3D = BALL_3D_COORDS_DIR
+    curSeq = CUR_SEQUENCE
+    _3DCoordFiles = sorted([dir3D+name for name in os.listdir(dir3D)])
     try:
-        CUR_3D_FILE = open(_3DCoordFiles[CUR_SEQUENCE])
+        CUR_3D_FILE = open(_3DCoordFiles[curSeq])
         READER_3D = csv.DictReader(CUR_3D_FILE)
-        print("Reading 3D coordinates from {}".format(_3DCoordFiles[CUR_SEQUENCE]))
+        print("Reading 3D coordinates from {}".format(_3DCoordFiles[curSeq]))
     except:
         print("Couldn't find a file of 3D coordinates for this sequence")
     
@@ -203,11 +207,11 @@ class Camera:
         #rotate up or down
         if up or down:
             if self.pos[2] > 0:
-                angleFromPZ = np.rad2deg(self.angle(self.pos, np.array([0,0,1])))
-                angleFromNZ = 180 - angleFromPZ
+                angleFromPZ= np.rad2deg(self.angle(self.pos,np.array([0,0,1])))
+                angleFromNZ= 180 - angleFromPZ
             else:
-                angleFromNZ = np.rad2deg(self.angle(self.pos, np.array([0,0,-1])))
-                angleFromPZ = 180 - angleFromNZ
+                angleFromNZ= np.rad2deg(self.angle(self.pos,np.array([0,0,-1])))
+                angleFromPZ= 180 - angleFromNZ
                 
             if angleFromPZ > 10 and up or angleFromNZ > 10 and down:
                 if up:
@@ -284,7 +288,7 @@ class Camera:
         return right
         
     def angle(self, v1, v2, acute=True):
-        angle = np.arccos(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
+        angle= np.arccos(np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2)))
         if (acute == True):
             return angle
         else:
@@ -292,7 +296,7 @@ class Camera:
             
         
     def updateDistance(self):
-        self.distance = np.sqrt(self.pos[0]**2 + self.pos[1]**2 + self.pos[2]**2)
+        self.distance= np.sqrt(self.pos[0]**2 + self.pos[1]**2 + self.pos[2]**2)
      
     def changeView(self, option):
         if option == 'x':
@@ -349,7 +353,10 @@ class GL3DPlot(QGLWidget):
         glViewport(0, 0, w, h)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+        gluPerspective(self.cam.fovy, 
+                       self.cam.aspectRatio, 
+                       self.cam.zNear, 
+                       self.cam.zFar)
     
     def initializeGL(self):
         '''
@@ -371,7 +378,10 @@ class GL3DPlot(QGLWidget):
         c = self.cam
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(self.cam.fovy, self.cam.aspectRatio, self.cam.zNear, self.cam.zFar)
+        gluPerspective(self.cam.fovy, 
+                       self.cam.aspectRatio, 
+                       self.cam.zNear, 
+                       self.cam.zFar)
         gluLookAt(   c.pos[0],    c.pos[1],    c.pos[2], 
                   c.center[0], c.center[1], c.center[2],
                       c.up[0],     c.up[1],     c.up[2])
@@ -389,6 +399,7 @@ class GL3DPlot(QGLWidget):
                     x = float(row['x'])
                     y = float(row['y'])
                     z = float(row['z'])
+                    z += TABLE_Z_OFFSET
                 except:
                     continue
                     
@@ -447,7 +458,8 @@ class GL3DPlot(QGLWidget):
         xDist = 1
         yDist = .65
         glColor4f(0,0,0,1)
-        for x, y in [(xDist, yDist), (xDist, -yDist), (-xDist, yDist), (-xDist, -yDist)]:
+        tList = [(xDist,yDist),(xDist,-yDist),(-xDist,yDist),(-xDist,-yDist)]
+        for x,y in tList:
             for i in (1, 4):
                 glPushMatrix()
                 glTranslatef(x/i, y, -.00001)
@@ -731,7 +743,8 @@ class VideoFrameDisplay(QGroupBox):
     def __init__(self, cName, parent):
         QGroupBox.__init__(self, parent)
         self.cName = cName
-        self.videoFiles = sorted([name for name in os.listdir(VIDEO_DIR) if cName in name])
+        vidFiles = [name for name in os.listdir(VIDEO_DIR) if cName in name]
+        self.videoFiles = sorted(vidFiles)
         self.createElements()
         self.createLayout()
         self.updateSequence()
@@ -753,14 +766,16 @@ class VideoFrameDisplay(QGroupBox):
         
         cs = CUR_SEQUENCE
         cDir = BALL_2D_COORDS_DIR
-        self.vid = imageio.get_reader(VIDEO_DIR + self.videoFiles[CUR_SEQUENCE],'mp4')
-        self.pathLabel.setText(self.videoFiles[CUR_SEQUENCE])
+        self.vid = imageio.get_reader(VIDEO_DIR + self.videoFiles[cs],'mp4')
+        self.pathLabel.setText(self.videoFiles[cs])
         try:
-            self.coordFiles = sorted([cDir+name for name in os.listdir(cDir) if self.cName in name])
+            cF = [cDir+name for name in os.listdir(cDir) if self.cName in name]
+            self.coordFiles = sorted(cF)
             self.coordFile = self.coordFiles[cs]
             self.coordFile = open(self.coordFile)
             self.coordFileReader = csv.DictReader(self.coordFile)
-            print("{} is reading 2D Coordinates from {}".format(self.cName, self.coordFiles[cs]))
+            print("{} is reading 2D Coordinates from {}".format(self.cName, 
+                                                           self.coordFiles[cs]))
         except Exception as e:
             print(e)
         
@@ -1046,17 +1061,20 @@ class SettingsMenu(QMainWindow):
         
     def onVideoFileDirChanged(self):
         global VID_DIR
-        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        # TODO: check if path is valid. If not, highlight the lineEdit 
+        # Widget and disable close
         VID_DIR = self.videoFileDirEdit.text()
         
     def on_3DFileDirChanged(self):
         global BALL_3D_COORDS_DIR
-        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        # TODO: check if path is valid. If not, highlight the lineEdit 
+        # Widget and disable close
         BALL_3D_COORDS_DIR = self._3DFileDirEdit.text()
         
     def on_2DFileDirChanged(self):
         global BALL_2D_COORDS_DIR
-        # TODO: check if path is valid. If not, highlight the lineEdit Widget and disable close
+        # TODO: check if path is valid. If not, highlight the lineEdit 
+        # Widget and disable close
         BALL_2D_COORDS_DIR = self._2DFileDirEdit.text()
         
     def checkPathValidity(self, path, expectedNumFiles):

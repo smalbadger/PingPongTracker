@@ -48,7 +48,7 @@ import traceback
 SHIFT = False   # toggle showing all previous ball positions or just the current
 CTRL  = False
 
-TABLE_Z_OFFSET = 0.14
+TABLE_Z_OFFSET = 0.07
 
 MOUSE_BUTTON = None
 MOVING = None
@@ -73,6 +73,14 @@ READER_2D = None
 BALL_3D_COORDS_DIR = "../triangulation_output/"
 CUR_3D_FILE = None
 READER_3D = None
+
+CAM_FRAME_RATE = 119.88
+
+# parametric approximations of ball flight
+X_POLY = None
+Y_POLY = None
+Z_POLY = None
+HIT_DETECTED = 0
 
 
 R1 = np.array([[ .96428, -.26485, -.0024166],
@@ -103,6 +111,13 @@ c1 = np.matmul(-1 * np.linalg.inv(R1), t1)
 c2 = np.matmul(-1 * np.linalg.inv(R2), t2)
 c3 = np.matmul(-1 * np.linalg.inv(R3), t3)
  
+#############################################################################
+#                            Globals End                                    #
+#############################################################################
+
+#############################################################################
+#                           Utility Functions Begin                         #
+############################################################################# 
 def updateSequence(seqNum):
     global BALL_3D_COORDS_DIR
     global VIDEO_DIR
@@ -111,6 +126,11 @@ def updateSequence(seqNum):
     global NUMBER_OF_FRAMES
     global CUR_3D_FILE
     global READER_3D
+    global X_POLY
+    global Y_POLY
+    global Z_POLY
+    global CAM_FRAME_RATE
+    global HIT_DETECTED
     
     CUR_SEQUENCE = seqNum
     videoFiles = sorted([VIDEO_DIR+name for name in os.listdir(VIDEO_DIR)])[:10]
@@ -128,20 +148,63 @@ def updateSequence(seqNum):
         print("Reading 3D coordinates from {}".format(_3DCoordFiles[curSeq]))
     except:
         print("Couldn't find a file of 3D coordinates for this sequence")
+        
+    # split all data into x, y, z, and t
+    t_data = []
+    x_data = []
+    y_data = []
+    z_data = []
+    if READER_3D != None:
+        CUR_3D_FILE.seek(0)
+        for row in READER_3D:
+            try:
+                frame = int(row['frame'])
+                x = float(row['x'])
+                y = float(row['y'])
+                z = float(row['z'])
+                z += TABLE_Z_OFFSET
+                
+                if np.isnan(x) or np.isnan(y) or np.isnan(z):
+                    continue
+                
+                time = frame / CAM_FRAME_RATE
+                
+                t_data.append(time)
+                x_data.append(x)
+                y_data.append(y)
+                z_data.append(z)
+            except:
+                continue
+                
+    # get all data points before the ball hits somthing
+    HIT_DETECTED = 0
+    for t, x, y, z, in zip(t_data, x_data, y_data, z_data):
+        HIT_DETECTED += 1
+        if z < -TABLE_Z_OFFSET:
+            break
+        
+    HIT_DETECTED = 40
+    print("Ball hit went below table at frame: {}".format(HIT_DETECTED))
+        
+    t_data = t_data[:HIT_DETECTED]
+    x_data = x_data[:HIT_DETECTED]
+    y_data = y_data[:HIT_DETECTED]
+    z_data = z_data[:HIT_DETECTED]
     
+    x_coff = np.polyfit(t_data, x_data, 2)
+    y_coff = np.polyfit(t_data, y_data, 2)
+    z_coff = np.polyfit(t_data, z_data, 2)
     
+    X_POLY = np.poly1d(x_coff)
+    Y_POLY = np.poly1d(y_coff)
+    Z_POLY = np.poly1d(z_coff)
+            
     
 def updateFrame(frameNum):
     global CUR_FRAME    
     CUR_FRAME = frameNum % NUMBER_OF_FRAMES
     #print("CUR_FRAME: {}".format(CUR_FRAME))
-#############################################################################
-#                            Globals End                                    #
-#############################################################################
 
-#############################################################################
-#                           Utility Functions Begin                         #
-#############################################################################
 def getPointOneAway(p1, p2):
     return (p2-p1) / (np.linalg.norm(p2-p1)) + p1
 #############################################################################
@@ -338,11 +401,13 @@ class GL3DPlot(QGLWidget):
             #self.drawAxes()
             self.drawTable()
             self.drawCameras()
+            self.drawFlightApproximation()
             
             
         self.drawBalls()
         
         glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_NORMAL_ARRAY)
         
         glFlush()
        
@@ -386,6 +451,32 @@ class GL3DPlot(QGLWidget):
                   c.center[0], c.center[1], c.center[2],
                       c.up[0],     c.up[1],     c.up[2])
         glMatrixMode(GL_MODELVIEW)
+        
+    def drawFlightApproximation(self):
+        global CUR_3D_FILE
+        global READER_3D
+        global X_POLY
+        global Y_POLY
+        global Z_POLY
+        global CAM_FRAME_RATE
+        global HIT_DETECTED
+    
+        glColor3f(0,1,1)    
+        glLineWidth(5)
+        glBegin(GL_LINE_STRIP)
+        for i in range(0, HIT_DETECTED+1):
+            if i > CUR_FRAME:
+                break
+            time = i/CAM_FRAME_RATE
+            x = X_POLY(time)
+            y = Y_POLY(time)
+            z = Z_POLY(time)
+            #print("x: {}\ty:{}\tz:{}".format(x, y, z))
+            glVertex3f(x, y, z)
+        glEnd()
+        glLineWidth(1)   
+                
+                
         
     def drawBalls(self):
         global READER_3D

@@ -42,11 +42,15 @@ import numpy as np
 import csv
 import traceback
 
+from pprint import pprint
+
 #############################################################################
 #                            Globals Begin                                  #
 #############################################################################
 SHIFT = False   # toggle showing all previous ball positions or just the current
 CTRL  = False
+SHOW_FITTED_LINE = False
+SHOW_ERROR = False
 
 TABLE_Z_OFFSET = 0.07
 
@@ -77,10 +81,10 @@ READER_3D = None
 CAM_FRAME_RATE = 119.88
 
 # parametric approximations of ball flight
-X_POLY = None
-Y_POLY = None
-Z_POLY = None
-HIT_DETECTED = 0
+X_POLY = []
+Y_POLY = []
+Z_POLY = []
+HITS_DETECTED = [0]
 
 
 R1 = np.array([[ .96428, -.26485, -.0024166],
@@ -130,7 +134,7 @@ def updateSequence(seqNum):
     global Y_POLY
     global Z_POLY
     global CAM_FRAME_RATE
-    global HIT_DETECTED
+    global HITS_DETECTED
     
     CUR_SEQUENCE = seqNum
     videoFiles = sorted([VIDEO_DIR+name for name in os.listdir(VIDEO_DIR)])[:10]
@@ -154,6 +158,7 @@ def updateSequence(seqNum):
     x_data = []
     y_data = []
     z_data = []
+    f_data = []
     if READER_3D != None:
         CUR_3D_FILE.seek(0)
         for row in READER_3D:
@@ -169,6 +174,7 @@ def updateSequence(seqNum):
                 
                 time = frame / CAM_FRAME_RATE
                 
+                f_data.append(frame)
                 t_data.append(time)
                 x_data.append(x)
                 y_data.append(y)
@@ -176,28 +182,35 @@ def updateSequence(seqNum):
             except:
                 continue
                 
-    # get all data points before the ball hits somthing
-    HIT_DETECTED = 0
-    for t, x, y, z, in zip(t_data, x_data, y_data, z_data):
-        HIT_DETECTED += 1
-        if z < -TABLE_Z_OFFSET:
-            break
+    # find the frames where the z-direction changes
+    HITS_DETECTED = [f_data[0]]
+    z_dir = []  # keep track of the z direction of motion
+    for i in range(1, len(z_data)-2):
+        z_dir.append(z_data[i]-z_data[i-1])
         
-    HIT_DETECTED = 40
-    print("Ball hit went below table at frame: {}".format(HIT_DETECTED))
+    for i in range(1, len(z_dir)):
+        if (z_dir[i] > 0 and z_dir[i-1] <= 0 and z_dir[i+1] > 0 and z_dir[i+2]>0):
+            HITS_DETECTED.append(f_data[i])
+            
+    if len(HITS_DETECTED) == 1:
+        HITS_DETECTED.append(f_data[len(f_data)-1])
+    print("Frames where hits were detected: {}".format(HITS_DETECTED))
+    
+    
+    X_POLY, Y_POLY, Z_POLY = [], [], []
+    for i in range(1, len(HITS_DETECTED)):
+        t = t_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
+        x = x_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
+        y = y_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
+        z = z_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
         
-    t_data = t_data[:HIT_DETECTED]
-    x_data = x_data[:HIT_DETECTED]
-    y_data = y_data[:HIT_DETECTED]
-    z_data = z_data[:HIT_DETECTED]
-    
-    x_coff = np.polyfit(t_data, x_data, 2)
-    y_coff = np.polyfit(t_data, y_data, 2)
-    z_coff = np.polyfit(t_data, z_data, 2)
-    
-    X_POLY = np.poly1d(x_coff)
-    Y_POLY = np.poly1d(y_coff)
-    Z_POLY = np.poly1d(z_coff)
+        X_POLY.append(np.poly1d(np.polyfit(t, x, 2)))
+        Y_POLY.append(np.poly1d(np.polyfit(t, y, 2)))
+        Z_POLY.append(np.poly1d(np.polyfit(t, z, 2)))
+        
+    #pprint(X_POLY)
+    #pprint(Y_POLY)
+    #pprint(Z_POLY)
             
     
 def updateFrame(frameNum):
@@ -391,6 +404,8 @@ class GL3DPlot(QGLWidget):
         self.cam = Camera()
         
     def paintGL(self):
+        global SHOW_FITTED_LINE
+        global SHOW_ERROR
         ''' Drawing routine '''
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
@@ -401,9 +416,12 @@ class GL3DPlot(QGLWidget):
             #self.drawAxes()
             self.drawTable()
             self.drawCameras()
-            self.drawFlightApproximation()
             
-            
+        if SHOW_FITTED_LINE:
+            self.drawFlightApproximation() 
+            if SHOW_ERROR:
+                self.drawError()
+                    
         self.drawBalls()
         
         glEnableClientState(GL_VERTEX_ARRAY)
@@ -452,6 +470,9 @@ class GL3DPlot(QGLWidget):
                       c.up[0],     c.up[1],     c.up[2])
         glMatrixMode(GL_MODELVIEW)
         
+    def drawError(self):
+        pass
+        
     def drawFlightApproximation(self):
         global CUR_3D_FILE
         global READER_3D
@@ -464,20 +485,29 @@ class GL3DPlot(QGLWidget):
         glColor3f(0,1,1)    
         glLineWidth(5)
         glBegin(GL_LINE_STRIP)
-        for i in range(0, HIT_DETECTED+1):
-            if i > CUR_FRAME:
+        self.approximationPoints = []
+        done=False
+        for i in range(1, len(HITS_DETECTED)):
+            if i > 2:
                 break
-            time = i/CAM_FRAME_RATE
-            x = X_POLY(time)
-            y = Y_POLY(time)
-            z = Z_POLY(time)
-            #print("x: {}\ty:{}\tz:{}".format(x, y, z))
-            glVertex3f(x, y, z)
+            
+            for j in range(HITS_DETECTED[i-1], HITS_DETECTED[i]):
+                if j>CUR_FRAME:
+                    done = True
+                    break
+                time = j/CAM_FRAME_RATE
+                x = X_POLY[i-1](time)
+                y = Y_POLY[i-1](time)
+                z = Z_POLY[i-1](time)
+                self.approximationPoints.append({'frame':j,'x':x,'y':y,'z':z})
+                glVertex3f(x, y, z)
+                
+            
+            if done == True:
+                break
         glEnd()
-        glLineWidth(1)   
+        glLineWidth(1)  
                 
-                
-        
     def drawBalls(self):
         global READER_3D
         global CUR_3D_FILE
@@ -795,6 +825,8 @@ class GL3DPlot(QGLWidget):
     def keyPressEvent(self, event):
         global SHIFT
         global CTRL
+        global SHOW_FITTED_LINE
+        global SHOW_ERROR
         key = event.key()
         #print(key)
               
@@ -827,6 +859,11 @@ class GL3DPlot(QGLWidget):
             self.cam.changeView('2')
         if key == 51:
             self.cam.changeView('3')
+            
+        if key == 70:
+            SHOW_FITTED_LINE = not SHOW_FITTED_LINE
+        if key == 69:
+            SHOW_ERROR = not SHOW_ERROR
         
         self.updateGL()
         

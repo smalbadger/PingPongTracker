@@ -32,6 +32,8 @@ The visualization tool can be used for visualizing the calculated 3D coordinates
     - 1: show view from camera 1
     - 2: show view from camera 2
     - 3: show view from camera 3
+    - F: show line fitted to ball flight
+    - E: show error (only if fitted line is also shown)
     
 1. There are some keyboard controls that control both video and 3D viewer:
     - SHIFT: shows location of ball in all frames before and including the current frame. Toggling it will show only the current location of the ball.

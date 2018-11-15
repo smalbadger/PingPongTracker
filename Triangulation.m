@@ -71,7 +71,7 @@ for trajectoryIdx = 1:N_TRAJECTORIES
         endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.'; ];
         vectors = endPoints - startPoints;
 
-        intersectionPt = lineIntersect3D(startPoints, vectors)
+        intersectionPt = lineIntersect(startPoints, vectors);
 
         result(rowIdx, :) = [frame, intersectionPt];
     end
@@ -101,12 +101,13 @@ function intersectionPt = lineIntersect(startPoints, vectors)
         d = startPt(1);
         e = startPt(2);
         f = startPt(3);
-        M(idx, :) = [-b, a, 0];
+        M(idx, :) = [b, -a, 0];
         M(2 * idx, :) = [c, 0, -a];
         D(idx) = b * d - a * e;
         D(idx * 2) = c * d - a * f;
     end
     intersectionPt = inv(M.' * M) * M.' * D;
+    intersectionPt = intersectionPt.';
 end
 
 % ================================================ Helper Functions ================================================

@@ -156,9 +156,17 @@ for idx = 1 : size(videos)
     Step 7: Export coordinates to file (.csv)
     %}
     disp('Exporting coordinates to CSV file')
-    mkdir(res_dir);
-    baseName = strcat(strcat(res_dir,'vid'),num2str(idx));
-    csvwrite(strcat(baseName,'_coords.csv'),coords);
+    dirName = './results';
+    %mkdir(dirName);
+    baseName = strcat('./results/vid',num2str(idx));
+    %csvwrite(strcat(baseName,'_coords.csv'),coords);
+    outputFilePath = strcat(baseName,'_coords.csv');
+    fid = fopen(outputFilePath, 'w');
+    colHeader = {'frame','x','y'};
+    fprintf(fid, '%s,', colHeader{1:2});
+    fprintf(fid, '%s\n', colHeader{3});
+    fclose(fid);
+    dlmwrite(outputFilePath, coords, '-append');
     disp('Export Completed!')
 end
 

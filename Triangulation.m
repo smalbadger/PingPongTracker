@@ -69,8 +69,9 @@ for trajectoryIdx = 1:N_TRAJECTORIES
 
         startPoints = [ts{1}.'; ts{2}.'; ts{3}.'; ];
         endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.'; ];
+        vectors = endPoints - startPoints;
 
-        [intersectionPt, distances] = lineIntersect3D(startPoints, endPoints);
+        intersectionPt = lineIntersect3D(startPoints, vectors)
 
         result(rowIdx, :) = [frame, intersectionPt];
     end
@@ -86,6 +87,26 @@ for trajectoryIdx = 1:N_TRAJECTORIES
     dlmwrite(outputFilePath, result, '-append');
 
     % Write 3D data to file
+end
+
+function intersectionPt = lineIntersect(startPoints, vectors)
+    M = zeros(6, 3);
+    D = zeros(6, 1);
+    for idx = 1 : 3
+        vector = vectors(idx, :);
+        startPt = startPoints(idx, :);
+        a = vector(1);
+        b = vector(2);
+        c = vector(3);
+        d = startPt(1);
+        e = startPt(2);
+        f = startPt(3);
+        M(idx, :) = [-b, a, 0];
+        M(2 * idx, :) = [c, 0, -a];
+        D(idx) = b * d - a * e;
+        D(idx * 2) = c * d - a * f;
+    end
+    intersectionPt = inv(M.' * M) * M.' * D;
 end
 
 % ================================================ Helper Functions ================================================

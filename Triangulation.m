@@ -58,13 +58,13 @@ for trajectoryIdx = 1:N_TRAJECTORIES
             continue
         end
 
-        dirToImg1 = getDirectionToImagePt(frameData1(COL_NUM_UNDISTORT_U), frameData1(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{1});
+        dirToImg1 = getDirectionToImagePt(frameData1(COL_NUM_U), frameData1(COL_NUM_V), INTRINSIC_MATRICES{1});
         imgCoord1 = getImageCoord(Rs{1}, ts{1}, dirToImg1);
 
-        dirToImg2 = getDirectionToImagePt(frameData2(COL_NUM_UNDISTORT_U), frameData2(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{2});
+        dirToImg2 = getDirectionToImagePt(frameData2(COL_NUM_U), frameData2(COL_NUM_V), INTRINSIC_MATRICES{2});
         imgCoord2 = getImageCoord(Rs{2}, ts{2}, dirToImg2);
 
-        dirToImg3 = getDirectionToImagePt(frameData3(COL_NUM_UNDISTORT_U), frameData3(COL_NUM_UNDISTORT_V), INTRINSIC_MATRICES{3});
+        dirToImg3 = getDirectionToImagePt(frameData3(COL_NUM_U), frameData3(COL_NUM_V), INTRINSIC_MATRICES{3});
         imgCoord3 = getImageCoord(Rs{3}, ts{3}, dirToImg3);
 
         startPoints = [ts{1}.'; ts{2}.'; ts{3}.'; ];

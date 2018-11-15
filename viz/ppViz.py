@@ -52,7 +52,7 @@ CTRL  = False
 SHOW_FITTED_LINE = False
 SHOW_ERROR = False
 
-TABLE_Z_OFFSET = 0.07
+TABLE_Z_OFFSET = 0.1
 
 MOUSE_BUTTON = None
 MOVING = None
@@ -185,11 +185,11 @@ def updateSequence(seqNum):
     # find the frames where the z-direction changes
     HITS_DETECTED = [f_data[0]]
     z_dir = []  # keep track of the z direction of motion
-    for i in range(1, len(z_data)-2):
+    for i in range(1, len(z_data)):
         z_dir.append(z_data[i]-z_data[i-1])
         
     for i in range(1, len(z_dir)):
-        if (z_dir[i] > 0 and z_dir[i-1] <= 0 and z_dir[i+1] > 0 and z_dir[i+2]>0):
+        if (z_dir[i] > 0 and z_dir[i-1] <= 0):
             HITS_DETECTED.append(f_data[i])
             
     if len(HITS_DETECTED) == 1:
@@ -488,8 +488,8 @@ class GL3DPlot(QGLWidget):
         self.approximationPoints = []
         done=False
         for i in range(1, len(HITS_DETECTED)):
-            if i > 2:
-                break
+            #if i > 2:
+            #    break
             
             for j in range(HITS_DETECTED[i-1], HITS_DETECTED[i]):
                 if j>CUR_FRAME:

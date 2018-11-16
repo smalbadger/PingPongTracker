@@ -1,13 +1,14 @@
 % Import external function
 addpath('./lineIntersect3D');
 
-% Set output FOLDER
+% Set input and output FOLDER
 OUTPUT_PATH = './triangulation_output/';
+INPUT_PATH = 'Annotation/';
 
 % Read File List
 FILE_LIST_NAME = 'FileList.csv';
 [num, FILE_VIDEO_LIST] = xlsread(FILE_LIST_NAME);
-FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST);
+FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST, INPUT_PATH);
 
 % Camera Properties
 N_TRAJECTORIES = size(FILE_ANNOTATION_LIST, 1);
@@ -77,7 +78,7 @@ for trajectoryIdx = 1:N_TRAJECTORIES
 
     comet3(result(:, 2), result(:, 3), result(:, 4));
     output = [colHeader; num2cell(result)];
-    outputFilePath = strcat(OUTPUT_PATH, extractAfter(camFile1, '/'));
+    outputFilePath = strcat(OUTPUT_PATH, extractAfter(camFile1, '/'))
 
     fid = fopen(outputFilePath, 'w');
     fprintf(fid, '%s,', colHeader{1:3});
@@ -90,12 +91,12 @@ end
 % ================================================ Helper Functions ================================================
 
 % Returns corresponding 2D data file locations from File List
-function FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST)
+function FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST, INPUT_PATH)
     FILE_ANNOTATION_LIST = cell(size(FILE_VIDEO_LIST));
 
     for fileIdx = 1:numel(FILE_VIDEO_LIST)
         baseName = FILE_VIDEO_LIST{fileIdx}(1:find(FILE_VIDEO_LIST{fileIdx} == '.') - 1);
-        prefix = 'Annotation/';
+        prefix = INPUT_PATH;
         fileType = '.csv';
 
         FILE_ANNOTATION_LIST{fileIdx} = strcat(prefix, baseName, fileType);

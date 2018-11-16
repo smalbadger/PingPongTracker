@@ -69,7 +69,6 @@ for trajectoryIdx = 1:N_TRAJECTORIES
 
         startPoints = [ts{1}.'; ts{2}.'; ts{3}.'; ];
         endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.'; ];
-        vectors = endPoints - startPoints;
 
         intersectionPt = lineIntersect3D(startPoints, endPoints);
 
@@ -208,7 +207,8 @@ function drawCamAxis()
 end
 
 
-function intersectionPt = lineIntersectLeastSquares(startPoints, vectors)
+function intersectionPt = lineIntersectLeastSquares(startPoints, endPoints)
+    vectors = endPoints - startPoints;
     M = zeros(6, 3);
     D = zeros(6, 1);
     for idx = 1 : 3
@@ -230,7 +230,8 @@ function intersectionPt = lineIntersectLeastSquares(startPoints, vectors)
 end
 
 
-function intersectionPt = lineIntersectSVD(startPoints, vectors)
+function intersectionPt = lineIntersectSVD(startPoints, endPoints)
+    vectors = endPoints - startPoints;
     M = zeros(6, 3);
     D = zeros(6, 1);
     for idx = 1 : 3

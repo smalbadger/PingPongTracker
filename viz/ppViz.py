@@ -143,8 +143,30 @@ def updateSequence(seqNum):
     videoFiles = sorted([VIDEO_DIR+name for name in os.listdir(VIDEO_DIR)])[:10]
     vid = imageio.get_reader(videoFiles[CUR_SEQUENCE],'mp4')
     NUMBER_OF_FRAMES = vid._meta['nframes']
-    print("\n\n"+"*"*56)
-    print("SWITCHED TO SEQUENCE: {}".format(CUR_SEQUENCE+1))
+    print("\n"*80)
+    print('''Welcome to ppViz!\nHere are the controls:
+    - W ------------ move camera up
+    - S ------------ move camera down
+    - A ------------ move camera left
+    - D ------------ move camera right
+    - ARROW UP ----- move camera in
+    - ARROW DOWN --- move camera out
+    - x ------------ align camera with the x-axis
+    - y ------------ align camera with the y-axis
+    - 1 ------------ show view from camera 1
+    - 2 ------------ show view from camera 2
+    - 3 ------------ show view from camera 3
+    - F ------------ show line fitted to ball flight
+    - E ------------ show error (if F is toggled on)
+    - SHIFT -------- shows location of ball
+    - CTRL --------- toggles background
+    
+    
+    '''
+    )
+    print("*"*56)
+    print("             SWITCHED TO VIDEO SEQUENCE: {}".format(CUR_SEQUENCE+1))
+    print("*"*56+"\n")
     print("# of frames: {}".format(NUMBER_OF_FRAMES))
     
     dir3D = BALL_3D_COORDS_DIR
@@ -271,7 +293,7 @@ class Camera:
         self.speed = 0.01
         self.angularSpeed = 1
         self.distance = 3
-        self.fovy        = 100.0 
+        self.fovy        = 120.0 
         self.aspectRatio = 1.0
         self.zNear       = .1 
         self.zFar        = 100

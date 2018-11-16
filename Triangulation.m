@@ -1,13 +1,14 @@
 % Import external function
 addpath('./lineIntersect3D');
 
-% Set output FOLDER
+% Set input and output FOLDER
 OUTPUT_PATH = './triangulation_output/';
+INPUT_PATH = 'Annotation/';
 
 % Read File List
 FILE_LIST_NAME = 'FileList.csv';
 [num, FILE_VIDEO_LIST] = xlsread(FILE_LIST_NAME);
-FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST);
+FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST, INPUT_PATH);
 
 % Camera Properties
 N_TRAJECTORIES = size(FILE_ANNOTATION_LIST, 1);
@@ -77,7 +78,7 @@ for trajectoryIdx = 1:N_TRAJECTORIES
 
     comet3(result(:, 2), result(:, 3), result(:, 4));
     output = [colHeader; num2cell(result)];
-    outputFilePath = strcat(OUTPUT_PATH, extractAfter(camFile1, '/'));
+    outputFilePath = strcat(OUTPUT_PATH, extractAfter(camFile1, '/'))
 
     fid = fopen(outputFilePath, 'w');
     fprintf(fid, '%s,', colHeader{1:3});
@@ -90,12 +91,12 @@ end
 % ================================================ Helper Functions ================================================
 
 % Returns corresponding 2D data file locations from File List
-function FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST)
+function FILE_ANNOTATION_LIST = getFileAnnotationList(FILE_VIDEO_LIST, INPUT_PATH)
     FILE_ANNOTATION_LIST = cell(size(FILE_VIDEO_LIST));
 
     for fileIdx = 1:numel(FILE_VIDEO_LIST)
         baseName = FILE_VIDEO_LIST{fileIdx}(1:find(FILE_VIDEO_LIST{fileIdx} == '.') - 1);
-        prefix = 'Annotation/';
+        prefix = INPUT_PATH;
         fileType = '.csv';
 
         FILE_ANNOTATION_LIST{fileIdx} = strcat(prefix, baseName, fileType);
@@ -226,30 +227,5 @@ function intersectionPt = lineIntersectLeastSquares(startPoints, endPoints)
         D(idx * 2) = c * d - a * f;
     end
     intersectionPt = inv(M.' * M) * M.' * D;
-    intersectionPt = intersectionPt.';
-end
-
-
-function intersectionPt = lineIntersectSVD(startPoints, endPoints)
-    vectors = endPoints - startPoints;
-    M = zeros(6, 3);
-    D = zeros(6, 1);
-    for idx = 1 : 3
-        vector = vectors(idx, :);
-        startPt = startPoints(idx, :);
-        a = vector(1);
-        b = vector(2);
-        c = vector(3);
-        d = startPt(1);
-        e = startPt(2);
-        f = startPt(3);
-        M(idx, :) = [b, -a, 0];
-        M(2 * idx, :) = [c, 0, -a];
-        D(idx) = b * d - a * e;
-        D(idx * 2) = c * d - a * f;
-    end
-    [U, S, Vt] = svd(M);
-    Mplus = inv(M.' * M) * M.';
-    intersectionPt = Mplus * D;
     intersectionPt = intersectionPt.';
 end

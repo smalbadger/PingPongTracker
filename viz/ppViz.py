@@ -29,6 +29,8 @@ from PySide2.QtWidgets import QLineEdit
 from PySide2.QtWidgets import QSpinBox
 from PySide2.QtWidgets import QGroupBox
 from PySide2.QtWidgets import QSlider
+from PySide2.QtWidgets import QSpacerItem
+from PySide2.QtWidgets import QSizePolicy
 from PySide2.QtGui import QPixmap
 from PySide2.QtGui import QImage
 from PySide2.QtGui import QPalette
@@ -41,14 +43,19 @@ import imageio
 import numpy as np
 import csv
 import traceback
+from PIL import Image as Image
+
+from pprint import pprint
 
 #############################################################################
 #                            Globals Begin                                  #
 #############################################################################
 SHIFT = False   # toggle showing all previous ball positions or just the current
 CTRL  = False
+SHOW_FITTED_LINE = False
+SHOW_ERROR = False
 
-TABLE_Z_OFFSET = 0.14
+TABLE_Z_OFFSET = 0.1
 
 MOUSE_BUTTON = None
 MOVING = None
@@ -73,6 +80,14 @@ READER_2D = None
 BALL_3D_COORDS_DIR = "../triangulation_output/"
 CUR_3D_FILE = None
 READER_3D = None
+
+CAM_FRAME_RATE = 119.88
+
+# parametric approximations of ball flight
+X_POLY = []
+Y_POLY = []
+Z_POLY = []
+HITS_DETECTED = [0]
 
 
 R1 = np.array([[ .96428, -.26485, -.0024166],
@@ -103,6 +118,13 @@ c1 = np.matmul(-1 * np.linalg.inv(R1), t1)
 c2 = np.matmul(-1 * np.linalg.inv(R2), t2)
 c3 = np.matmul(-1 * np.linalg.inv(R3), t3)
  
+#############################################################################
+#                            Globals End                                    #
+#############################################################################
+
+#############################################################################
+#                           Utility Functions Begin                         #
+############################################################################# 
 def updateSequence(seqNum):
     global BALL_3D_COORDS_DIR
     global VIDEO_DIR
@@ -111,6 +133,11 @@ def updateSequence(seqNum):
     global NUMBER_OF_FRAMES
     global CUR_3D_FILE
     global READER_3D
+    global X_POLY
+    global Y_POLY
+    global Z_POLY
+    global CAM_FRAME_RATE
+    global HITS_DETECTED
     
     CUR_SEQUENCE = seqNum
     videoFiles = sorted([VIDEO_DIR+name for name in os.listdir(VIDEO_DIR)])[:10]
@@ -128,22 +155,101 @@ def updateSequence(seqNum):
         print("Reading 3D coordinates from {}".format(_3DCoordFiles[curSeq]))
     except:
         print("Couldn't find a file of 3D coordinates for this sequence")
+        
+    # split all data into x, y, z, and t
+    t_data = []
+    x_data = []
+    y_data = []
+    z_data = []
+    f_data = []
+    if READER_3D != None:
+        CUR_3D_FILE.seek(0)
+        for row in READER_3D:
+            try:
+                frame = int(row['frame'])
+                x = float(row['x'])
+                y = float(row['y'])
+                z = float(row['z'])
+                z += TABLE_Z_OFFSET
+                
+                if np.isnan(x) or np.isnan(y) or np.isnan(z):
+                    continue
+                
+                time = frame / CAM_FRAME_RATE
+                
+                f_data.append(frame)
+                t_data.append(time)
+                x_data.append(x)
+                y_data.append(y)
+                z_data.append(z)
+            except:
+                continue
+                
+    # find the frames where the z-direction changes
+    HITS_DETECTED = [f_data[0]]
+    z_dir = []  # keep track of the z direction of motion
+    for i in range(1, len(z_data)):
+        z_dir.append(z_data[i]-z_data[i-1])
+    pprint(z_dir)
+    for i in range(1, len(z_dir)-1):
+        if (z_dir[i+1] > 0.003 and z_dir[i] > 0.0 and z_dir[i-1] <= -0.005):
+            HITS_DETECTED.append(f_data[i])
+            
+    if len(HITS_DETECTED) == 1:
+        HITS_DETECTED.append(f_data[len(f_data)-1])
+    if HITS_DETECTED[-1] != f_data[-1]:
+        HITS_DETECTED.append(f_data[-1])
+    print("Frames where hits were detected: {}".format(HITS_DETECTED))
     
     
+    X_POLY, Y_POLY, Z_POLY = [], [], []
+    X2_POLY, Y2_POLY, Z2_POLY = [], [], []
+    for i in range(1, len(HITS_DETECTED)):
+        t = t_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
+        x = x_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
+        y = y_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
+        z = z_data[HITS_DETECTED[i-1]:HITS_DETECTED[i]+1]
+        
+        X_POLY.append(np.poly1d(np.polyfit(t, x, 2)))
+        Y_POLY.append(np.poly1d(np.polyfit(t, y, 2)))
+        Z_POLY.append(np.poly1d(np.polyfit(t, z, 2)))
+        
+        X2_POLY.append(np.polyder(np.polyder(X_POLY[len(X_POLY)-1])))
+        Y2_POLY.append(np.polyder(np.polyder(Y_POLY[len(Y_POLY)-1])))
+        Z2_POLY.append(np.polyder(np.polyder(Z_POLY[len(Z_POLY)-1])))
+        
+        
+    print("\n=========== SPIN DETECTION BEGIN ===========")
+    if (Y2_POLY[0].c[0] <= -.5):
+        print("Right spin")
+    elif (Y2_POLY[0].c[0] >= .5):
+        print("Left spin")
+    else:
+        print("No spin detected about the Z axis")
+    if len(X2_POLY) >= 2:
+        if (X2_POLY[0].c[0] - X2_POLY[1].c[0] > 1):
+            print("Back spin")
+        elif (X2_POLY[0].c[0] - X2_POLY[1].c[0] < -1):
+            print("Forward spin")
+        else:
+            print("No spin detected about the y axis")
+    else:
+        print("Not enough information to detect spin about the y axis")
+    print("============ SPIN DETECTION END ============\n")
+    
+    pprint(X2_POLY)
+    pprint(Y2_POLY)
+    pprint(Z2_POLY)
+            
     
 def updateFrame(frameNum):
     global CUR_FRAME    
     CUR_FRAME = frameNum % NUMBER_OF_FRAMES
     #print("CUR_FRAME: {}".format(CUR_FRAME))
-#############################################################################
-#                            Globals End                                    #
-#############################################################################
 
-#############################################################################
-#                           Utility Functions Begin                         #
-#############################################################################
 def getPointOneAway(p1, p2):
     return (p2-p1) / (np.linalg.norm(p2-p1)) + p1
+    
 #############################################################################
 #                           Utility Functions End                           #
 #############################################################################
@@ -324,10 +430,13 @@ class GL3DPlot(QGLWidget):
     def __init__(self, parent):
         QGLWidget.__init__(self, parent)
         self.setFocusPolicy(Qt.TabFocus)
+        #self.setMaximumWidth(2000)
         self.grabKeyboard()
         self.cam = Camera()
         
     def paintGL(self):
+        global SHOW_FITTED_LINE
+        global SHOW_ERROR
         ''' Drawing routine '''
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
@@ -335,14 +444,20 @@ class GL3DPlot(QGLWidget):
         
         if not CTRL:
             self.drawEnvironment()
+            self.drawPerson()
             #self.drawAxes()
             self.drawTable()
             self.drawCameras()
             
-            
+        if SHOW_FITTED_LINE:
+            self.drawFlightApproximation() 
+            if SHOW_ERROR:
+                self.drawError()
+                    
         self.drawBalls()
         
         glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_NORMAL_ARRAY)
         
         glFlush()
        
@@ -363,7 +478,7 @@ class GL3DPlot(QGLWidget):
         Initialize GL
         '''
         glutInit()
-        glEnable(GL_BLEND);
+        glEnable(GL_BLEND)
         glEnable(GL_DEPTH_TEST)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glClearColor(.2,.3,.0, 1.0)
@@ -387,6 +502,70 @@ class GL3DPlot(QGLWidget):
                       c.up[0],     c.up[1],     c.up[2])
         glMatrixMode(GL_MODELVIEW)
         
+    def drawError(self):
+        CUR_3D_FILE.seek(0)
+        glColor3f(1,0,0)
+        glLineWidth(20)
+        glBegin(GL_LINES)
+        for pt in self.approximationPoints:
+            frame_a = pt['frame']
+            x_a = pt['x']
+            y_a = pt['y']
+            z_a = pt['z']
+            
+            for row in READER_3D:
+                try:
+                    frame = int(row['frame'])
+                    x = float(row['x'])
+                    y = float(row['y'])
+                    z = float(row['z'])
+                    z += TABLE_Z_OFFSET
+                    
+                    if frame == frame_a:
+                        glVertex3f(x_a, y_a, z_a)
+                        glVertex3f(x, y, z)
+                        break
+                except:
+                    continue
+        glEnd()
+        glLineWidth(1)
+        
+    def drawFlightApproximation(self):
+        global CUR_3D_FILE
+        global READER_3D
+        global X_POLY
+        global Y_POLY
+        global Z_POLY
+        global CAM_FRAME_RATE
+        global HIT_DETECTED
+    
+        glColor3f(0,1,1)    
+        glLineWidth(5)
+        glBegin(GL_LINE_STRIP)
+        self.approximationPoints = []
+        done=False
+        for i in range(1, len(HITS_DETECTED)):
+            #if i > 2:
+            #    break
+            
+            for j in range(HITS_DETECTED[i-1], HITS_DETECTED[i]):
+                if j>CUR_FRAME:
+                    done = True
+                    break
+                time = j/CAM_FRAME_RATE
+                x = X_POLY[i-1](time)
+                y = Y_POLY[i-1](time)
+                z = Z_POLY[i-1](time)
+                self.approximationPoints.append({'frame':j,'x':x,'y':y,'z':z})
+                glVertex3f(x, y, z)
+                #glVertex3f(1, 1, z)
+                
+            
+            if done == True:
+                break
+        glEnd()
+        glLineWidth(1)  
+                
     def drawBalls(self):
         global READER_3D
         global CUR_3D_FILE
@@ -418,8 +597,60 @@ class GL3DPlot(QGLWidget):
                 glutSolidSphere(.02, 20, 10)
                 glPopMatrix();
        
+    def drawPerson(self):
+        ground = -0.76
+        height = 1.6
+        centerX = -1.9
+        centerY = .6
+        
+        glPushMatrix()
+        z = height/3
+        legLength = .5
+        glTranslatef(centerX, centerY, z)
+        glRotatef(180, 1, 0, 0)
+        glTranslatef(0,0,.85)
+        glRotatef(25, 1, 1, 0)
+        glColor3f(1, .6, .3)
+        gluCylinder(gluNewQuadric(), .03, .04, legLength, 50, 10)       #leg
+        glColor3f(.5, .5, .6)
+        gluCylinder(gluNewQuadric(), .031, .041, legLength/2, 50, 10)   #shorts
+        glRotatef(-50, 1, 1, 0)
+        glColor3f(1, .6, .3)
+        gluCylinder(gluNewQuadric(), .03, .04, legLength, 50, 10)   #leg
+        glColor3f(.5, .5, .6)
+        gluCylinder(gluNewQuadric(), .031, .041, legLength/2, 50, 10)   #shorts
+        glRotatef(25, 1, 1, 0)
+        glTranslatef(0,0,-z)
+        glColor3f(.8, .8, .8)
+        gluCylinder(gluNewQuadric(), .03, .03, z, 50, 10)           #torso
+        glPushMatrix()
+        glRotatef(30, 1, 1, 0)
+        glRotatef(15, 0,1,0)
+        glColor3f(.8, .8, .8)
+        gluCylinder(gluNewQuadric(), .03, .03, z/2, 50, 10)         #upper arm
+        glTranslatef(0, 0, z/2)
+        glRotatef(-45, 1, 0, 0)
+        glColor3f(1, .6, .3)
+        gluCylinder(gluNewQuadric(), .03, .03, z/2, 50, 10)         #upper arm
+        glPopMatrix()
+        glPushMatrix()
+        glRotatef(-30, 1, 1, 0)
+        glRotatef(15, 0,1,0)
+        glColor3f(.8, .8, .8)
+        gluCylinder(gluNewQuadric(), .03, .03, z/2, 50, 10)         #lower arm
+        glTranslatef(0, 0, z/2)
+        glRotatef(-60, 1, 0, 0)
+        glColor3f(1, .6, .3)
+        gluCylinder(gluNewQuadric(), .03, .03, z/2, 50, 10)         #lower arm
+        glPopMatrix()
+        glTranslatef(0, 0, -z/3)
+        glColor3f(1, .6, .3)
+        glutSolidSphere(z/3, 30, 30)
+        glPopMatrix()
+        
+       
     def drawTable(self):
-        length = 2.74
+        length = 2.6 #2.74
         width = 1.525
         height = 0.76
         offset = .0001
@@ -704,6 +935,8 @@ class GL3DPlot(QGLWidget):
     def keyPressEvent(self, event):
         global SHIFT
         global CTRL
+        global SHOW_FITTED_LINE
+        global SHOW_ERROR
         key = event.key()
         #print(key)
               
@@ -736,6 +969,11 @@ class GL3DPlot(QGLWidget):
             self.cam.changeView('2')
         if key == 51:
             self.cam.changeView('3')
+            
+        if key == 70:
+            SHOW_FITTED_LINE = not SHOW_FITTED_LINE
+        if key == 69:
+            SHOW_ERROR = not SHOW_ERROR
         
         self.updateGL()
         
@@ -752,7 +990,9 @@ class VideoFrameDisplay(QGroupBox):
         
     def createElements(self):
         self.pathLabel = QLabel()
+        self.pathLabel.setMaximumHeight(50)
         self.imgBox = QLabel()
+        self.imgBox.setMinimumWidth(500)
         
     def createLayout(self):
         self.mainBox = QVBoxLayout()
@@ -805,7 +1045,7 @@ class VideoFrameDisplay(QGroupBox):
                     
         qImg = QImage(img, w, h, d*w, QImage.Format_RGB888)
         pMap = QPixmap(qImg)
-        pMap = pMap.scaledToWidth(450)
+        pMap = pMap.scaledToWidth(675)
         self.imgBox.setPixmap(pMap)
         
     def markImage(self, pxlImg, x, y, curLocation):
@@ -884,6 +1124,13 @@ class PPDashBoard(QWidget):
         self.vidBox.addWidget(self.vidFrame1)
         self.vidBox.addWidget(self.vidFrame2)
         self.vidBox.addWidget(self.vidFrame3)
+        self.vidBox.addItem(
+            QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
+            )
+        self.vidBox.setContentsMargins(0,0,0,0)
+        self.vidBox.setSpacing(0)
+        self.vidBox.setMargin(0)
+        self.vidBox.addStretch(1)
         
         self.frCtrl.addLayout(self.frSub)
         self.frSub.addStretch(1)

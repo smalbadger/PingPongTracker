@@ -7,7 +7,7 @@ Prerequisite:
 
 1. Ball Tracking Software
     Change directory to './BallTracker'. Run ballTracker.m on matlab. It will read the FileList.csv and read the corresponding
-	videos in 'TestVideos/' folder and output the pixel coordinates of the balls in ''
+	videos in 'TestVideos/' folder and output the pixel coordinates of the balls in './BallTracker/results/' folder.
 	
 2. Triangulation Software
     Run Triangulation.m on matlab. It takes CSV input of pixel coordinates from './Annotation/'. It groups files

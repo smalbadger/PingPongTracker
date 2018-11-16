@@ -71,7 +71,7 @@ for trajectoryIdx = 1:N_TRAJECTORIES
         endPoints = [imgCoord1.'; imgCoord2.'; imgCoord3.'; ];
         vectors = endPoints - startPoints;
 
-        intersectionPt = lineIntersect(startPoints, vectors);
+        intersectionPt = lineIntersect3D(startPoints, endPoints);
 
         result(rowIdx, :) = [frame, intersectionPt];
     end
@@ -85,30 +85,8 @@ for trajectoryIdx = 1:N_TRAJECTORIES
     fprintf(fid, '%s\n', colHeader{4});
     fclose(fid);
     dlmwrite(outputFilePath, result, '-append');
-
-    % Write 3D data to file
 end
 
-function intersectionPt = lineIntersect(startPoints, vectors)
-    M = zeros(6, 3);
-    D = zeros(6, 1);
-    for idx = 1 : 3
-        vector = vectors(idx, :);
-        startPt = startPoints(idx, :);
-        a = vector(1);
-        b = vector(2);
-        c = vector(3);
-        d = startPt(1);
-        e = startPt(2);
-        f = startPt(3);
-        M(idx, :) = [b, -a, 0];
-        M(2 * idx, :) = [c, 0, -a];
-        D(idx) = b * d - a * e;
-        D(idx * 2) = c * d - a * f;
-    end
-    intersectionPt = inv(M.' * M) * M.' * D;
-    intersectionPt = intersectionPt.';
-end
 
 % ================================================ Helper Functions ================================================
 
@@ -227,4 +205,50 @@ function drawCamAxis()
         hold on
     end
 
+end
+
+
+function intersectionPt = lineIntersectLeastSquares(startPoints, vectors)
+    M = zeros(6, 3);
+    D = zeros(6, 1);
+    for idx = 1 : 3
+        vector = vectors(idx, :);
+        startPt = startPoints(idx, :);
+        a = vector(1);
+        b = vector(2);
+        c = vector(3);
+        d = startPt(1);
+        e = startPt(2);
+        f = startPt(3);
+        M(idx, :) = [b, -a, 0];
+        M(2 * idx, :) = [c, 0, -a];
+        D(idx) = b * d - a * e;
+        D(idx * 2) = c * d - a * f;
+    end
+    intersectionPt = inv(M.' * M) * M.' * D;
+    intersectionPt = intersectionPt.';
+end
+
+
+function intersectionPt = lineIntersectSVD(startPoints, vectors)
+    M = zeros(6, 3);
+    D = zeros(6, 1);
+    for idx = 1 : 3
+        vector = vectors(idx, :);
+        startPt = startPoints(idx, :);
+        a = vector(1);
+        b = vector(2);
+        c = vector(3);
+        d = startPt(1);
+        e = startPt(2);
+        f = startPt(3);
+        M(idx, :) = [b, -a, 0];
+        M(2 * idx, :) = [c, 0, -a];
+        D(idx) = b * d - a * e;
+        D(idx * 2) = c * d - a * f;
+    end
+    [U, S, Vt] = svd(M);
+    Mplus = inv(M.' * M) * M.';
+    intersectionPt = Mplus * D;
+    intersectionPt = intersectionPt.'
 end

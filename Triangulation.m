@@ -251,5 +251,5 @@ function intersectionPt = lineIntersectSVD(startPoints, endPoints)
     [U, S, Vt] = svd(M);
     Mplus = inv(M.' * M) * M.';
     intersectionPt = Mplus * D;
-    intersectionPt = intersectionPt.'
+    intersectionPt = intersectionPt.';
 end

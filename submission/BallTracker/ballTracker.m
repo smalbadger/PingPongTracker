@@ -205,9 +205,205 @@ while ~feof(fid)
         fclose(fid);
         dlmwrite(outputFilePath, coords, '-append');
         disp('Export Completed!')
+        
+        %{
+        Alternative algorithm that incorporates colour but is less precise
+        %{
+        Step 3: 
+        Read and store each frame of the video for further processing
+        %}
+        framecount = floor(duration*framerate)
+        f = 1;
+        frames = cell(1,framecount);
+        while hasFrame(vid)
+            % Obtain the current frame of the video
+            curr_frame = double(rgb2gray(readFrame(vid)));
+            % Save the frame for subsequent use
+            frames{f} = curr_frame;
+            % Increment counter
+            f = f + 1;
+        end
+        disp('Video frames obtained!')
+
+        % Stating dimensions for subsequent reference
+        [f_rows, f_cols] = size(frames)
+
+        %{
+        % Sanity Checking
+        for f_idx = 1: f_cols
+            curr_frame = frames{f_idx};
+            imshow(uint8(curr_frame))
+        end
+        break
+        %}    
+
+        %{
+        Step 4: 
+        Keep only "white enough" colour values (since ball is white)
+        %}
+        disp('Selecting pixels with "white enough" colour values...');
+        % Define colour threshold
+        c_thres_low = 190;
+        c_thres_high = 230;
+        for f_idx = 1: f_cols
+            % Obtain the current frame of the video
+            curr_frame = frames{f_idx};
+            % Remove all colours that are not "white enough"
+            curr_frame(curr_frame < c_thres_low) = 0;
+            % Remove all colours that "too white"
+            curr_frame(curr_frame > c_thres_high) = 0;
+            % Replace original frame with the colour filtered frame
+            frames{f_idx} = curr_frame;
+        end
+        disp('Colour filtering complete!');
+
+        %{
+        % Sanity Checking
+        for f_idx = 1: f_cols
+            curr_frame = frames{f_idx};
+            imshow(uint8(curr_frame))
+        end
+        break
+        %}
+
+        %{
+        Step 5: 
+        Removing unneccessary noise by iterating through background subtraction
+        %}
+        for i_count = 1: 10
+            disp(strcat('Iteration no.: ', num2str(i_count)))
+
+            %{
+            Step 5a: 
+            Get the background by averaging away the foreground (i.e. moving)
+            objects.
+            %}
+            disp('Averaging away foreground to obtain background...')
+            k = 1;
+            avg = zeros(pixel_height, pixel_width);
+            for f_idx = 1: f_cols
+                % Obtain the current frame of the video
+                curr_frame = frames{f_idx};
+                % Calculate the running average of the video
+                avg = ((k-1)/k)*avg +(1/k)*curr_frame;
+                % Increment proportion counter
+                k = k + 1;
+            end
+            disp('Static Background is obtained!')
+
+            %{
+            % Sanity Checking
+            imshow(uint8(avg));
+            break
+            %}
+
+            %{
+            Step 5b: 
+            Subtract background from each frame of the video
+            %}
+            disp('Subtracting background from frame...');
+            % Track the maximum difference per frame
+            max_diffs = zeros(1,f_cols);
+            for f_idx = 1: f_cols
+                curr_frame = frames{f_idx};
+                % Obtain the subtracted version of the current frame
+                subtracted_frame = curr_frame - avg;
+                % Store maximum difference detected for each frame
+                max_diff = max(subtracted_frame(:));
+                max_diffs(f_idx) = max_diff;
+                % Remove pixels that have differences below threshold
+                threshold = max_diff*0.80;
+                subtracted_frame(subtracted_frame < threshold) = 0;
+                %{
+                % For visualising the subtractions
+                subtracted_frame = logical(subtracted_frame);
+                frames{f_idx} = subtracted_frame.*curr_frame;
+                %}
+                % Replace frame with its corresponding subtracted frame
+                frames{f_idx} = subtracted_frame;
+            end
+            disp('Background removed!')
+        end
+
+        %{
+        % Sanity Checking
+        for f_idx = 1: f_cols
+            curr_frame = frames{f_idx};
+            imshow(uint8(curr_frame))
+        end
+        break
+        %}
+
+        %{
+        Step 6: 
+        Scale and reassign colour values according to extent of difference
+        %}
+        disp('Scaling and reassigning colour values according to extent of difference')
+        % Compute the maximum difference across all frames
+        m_max_diff = max(max_diffs);
+        for f_idx = 1: f_cols
+            curr_frame = frames{f_idx};
+            % Scale differences with respect to median max difference
+            curr_frame = curr_frame./m_max_diff;
+            curr_frame = floor(curr_frame.*256);
+
+            % Replace all values below threshold with colour value 0
+            threshold = max(curr_frame(:))*0.50;
+            curr_frame(curr_frame < threshold) = 0;
+
+            % Replace frame with new difference scaled frame
+            frames{f_idx} = curr_frame;
+        end
+        disp('Scaling and reassignment completed!')
+
+        %{
+        % Sanity Checking
+        for f_idx = 1: f_cols
+            curr_frame = frames{f_idx};
+            imshow(uint8(curr_frame))
+        end
+        break
+        %}
+
+        %{
+        Step 7: Extract the coordinates of non-zero pixels & perform clustering
+        %}
+        disp('Detecting the centroid of ball cluster...')
+        coords = zeros(framecount,3);
+        %coords = table('frame','x','y'); % For formatting issues
+        for f_idx = 1: f_cols
+            curr_frame = frames{f_idx};
+            % Find dimensions of current frame
+            [y,x,rgb] = size(curr_frame);
+            % Extract coordinates for non-zero values from current frame
+            [nz_y, nz_x, nz_val] = find(curr_frame);
+            % Account for RGB dimension for x-coordinates
+            nz_x = mod(nz_x,x);
+            % Create cluster data using coordinates(indexes) of non-zero pixels
+            nz_coords = [nz_x nz_y];
+            % Find optimal number of clusters for k-means clustering
+            eva = evalclusters(nz_coords,'kmeans','silhouette','KList',1:5)
+            opt_K = eva.OptimalK;
+            if isnan(opt_K)
+                opt_K = 1;
+            end
+            % Perform K-means clustering
+            [index, C, sumd] = kmeans(nz_coords,opt_K);
+            % Find sorted (via percentage) composition (i.e. how many datapoints) of each cluster
+            sorted_composition = sortrows(tabulate(index),3,'descend');
+            % Find the largest cluster (i.e. most likely to be from ball)
+            ball_cluster = sorted_composition(1,1);
+            % Retrieve centroid that represents the cluster
+            ball_centroid = C(ball_cluster,:);
+            % Save the coordinates of centroid
+            coords(f_idx,1) = f_idx - 1;
+            coords(f_idx,2) = ball_centroid(1);
+            coords(f_idx,3) = ball_centroid(2);
+        end
+        disp('Centroid coordinates have been obtained!')
+        %}
     end
 end
 %fclose(fid);
-
 
 %diary off

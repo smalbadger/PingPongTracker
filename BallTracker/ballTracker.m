@@ -47,6 +47,7 @@ while ~feof(fid)
         avg = zeros(pixel_height, pixel_width);
         framecount = floor(duration*framerate)
         frames = cell(1,framecount);
+        originals = frames;
         while hasFrame(vid)
             % Obtain the current frame of the video
             curr_frame = double(readFrame(vid));
@@ -204,9 +205,7 @@ while ~feof(fid)
         fclose(fid);
         dlmwrite(outputFilePath, coords, '-append');
         disp('Export Completed!')
-        break
     end
-    break
 end
 %fclose(fid);
 

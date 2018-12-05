@@ -143,7 +143,30 @@ def updateSequence(seqNum):
     videoFiles = sorted([VIDEO_DIR+name for name in os.listdir(VIDEO_DIR)])[:10]
     vid = imageio.get_reader(videoFiles[CUR_SEQUENCE],'mp4')
     NUMBER_OF_FRAMES = vid._meta['nframes']
-    print("Switched to sequence: {}".format(CUR_SEQUENCE))
+    print("\n"*80)
+    print('''Welcome to ppViz!\nHere are the controls:
+    - W ------------ move camera up
+    - S ------------ move camera down
+    - A ------------ move camera left
+    - D ------------ move camera right
+    - ARROW UP ----- move camera in
+    - ARROW DOWN --- move camera out
+    - x ------------ align camera with the x-axis
+    - y ------------ align camera with the y-axis
+    - 1 ------------ show view from camera 1
+    - 2 ------------ show view from camera 2
+    - 3 ------------ show view from camera 3
+    - F ------------ show line fitted to ball flight
+    - E ------------ show error (if F is toggled on)
+    - SHIFT -------- shows location of ball
+    - CTRL --------- toggles background
+    
+    
+    '''
+    )
+    print("*"*56)
+    print("             SWITCHED TO VIDEO SEQUENCE: {}".format(CUR_SEQUENCE+1))
+    print("*"*56+"\n")
     print("# of frames: {}".format(NUMBER_OF_FRAMES))
     
     dir3D = BALL_3D_COORDS_DIR
@@ -152,7 +175,7 @@ def updateSequence(seqNum):
     try:
         CUR_3D_FILE = open(_3DCoordFiles[curSeq])
         READER_3D = csv.DictReader(CUR_3D_FILE)
-        print("Reading 3D coordinates from {}".format(_3DCoordFiles[curSeq]))
+        print("Reading 3D coordinates from:\n\t {}".format(_3DCoordFiles[curSeq]))
     except:
         print("Couldn't find a file of 3D coordinates for this sequence")
         
@@ -190,7 +213,7 @@ def updateSequence(seqNum):
     z_dir = []  # keep track of the z direction of motion
     for i in range(1, len(z_data)):
         z_dir.append(z_data[i]-z_data[i-1])
-    pprint(z_dir)
+    #pprint(z_dir)
     for i in range(1, len(z_dir)-1):
         if (z_dir[i+1] > 0.003 and z_dir[i] > 0.0 and z_dir[i-1] <= -0.005):
             HITS_DETECTED.append(f_data[i])
@@ -199,7 +222,7 @@ def updateSequence(seqNum):
         HITS_DETECTED.append(f_data[len(f_data)-1])
     if HITS_DETECTED[-1] != f_data[-1]:
         HITS_DETECTED.append(f_data[-1])
-    print("Frames where hits were detected: {}".format(HITS_DETECTED))
+    #print("Frames where hits were detected: {}".format(HITS_DETECTED))
     
     
     X_POLY, Y_POLY, Z_POLY = [], [], []
@@ -218,29 +241,40 @@ def updateSequence(seqNum):
         Y2_POLY.append(np.polyder(np.polyder(Y_POLY[len(Y_POLY)-1])))
         Z2_POLY.append(np.polyder(np.polyder(Z_POLY[len(Z_POLY)-1])))
         
+    
         
     print("\n=========== SPIN DETECTION BEGIN ===========")
+    
+    if Y2_POLY[0].c[0] > 0:
+        print("Right Acceleration: {:.5f} m/(s^2)".format(Y2_POLY[0].c[0]))
+    else:
+        print("Left Acceleration: {}".format(-Y2_POLY[0].c[0]))
+        
+    if (len(X2_POLY) >1):
+        if (X2_POLY[0].c[0] - X2_POLY[1].c[0] > 0):
+            print("Difference of Acceleration (Backward): {:.2f} m/(s^2)".format(X2_POLY[0].c[0] - X2_POLY[1].c[0]))
+        else:
+            print("Difference Acceleration (Forward): {:.2f} m/(s^2)".format(-(X2_POLY[0].c[0] - X2_POLY[1].c[0])))
+            
+        
+        
     if (Y2_POLY[0].c[0] <= -.5):
-        print("Right spin")
+        print("*** Left spin ***")
     elif (Y2_POLY[0].c[0] >= .5):
-        print("Left spin")
+        print("*** Right spin ***")
     else:
         print("No spin detected about the Z axis")
     if len(X2_POLY) >= 2:
         if (X2_POLY[0].c[0] - X2_POLY[1].c[0] > 1):
-            print("Back spin")
+            print("*** Back spin ***")
         elif (X2_POLY[0].c[0] - X2_POLY[1].c[0] < -1):
-            print("Forward spin")
+            print("*** Forward spin ***")
         else:
             print("No spin detected about the y axis")
     else:
-        print("Not enough information to detect spin about the y axis")
+        print("Not enough information to determine forward/backward spin.")
     print("============ SPIN DETECTION END ============\n")
     
-    pprint(X2_POLY)
-    pprint(Y2_POLY)
-    pprint(Z2_POLY)
-            
     
 def updateFrame(frameNum):
     global CUR_FRAME    
@@ -259,7 +293,7 @@ class Camera:
         self.speed = 0.01
         self.angularSpeed = 1
         self.distance = 3
-        self.fovy        = 100.0 
+        self.fovy        = 120.0 
         self.aspectRatio = 1.0
         self.zNear       = .1 
         self.zFar        = 100
@@ -650,7 +684,7 @@ class GL3DPlot(QGLWidget):
         
        
     def drawTable(self):
-        length = 2.6 #2.74
+        length = 2.74
         width = 1.525
         height = 0.76
         offset = .0001
@@ -802,6 +836,7 @@ class GL3DPlot(QGLWidget):
     def drawCameras(self):
         glPushMatrix()
         #draw camera i, j, and k vectors
+        glLineWidth(10)
         glBegin(GL_LINES)
         
         glColor3f(1, 0, 0)
@@ -943,7 +978,8 @@ class GL3DPlot(QGLWidget):
         if key == 16777248:
             SHIFT = not SHIFT
         if key == 16777249:
-            CTRL = not CTRL
+            pass
+            #CTRL = not CTRL
               
         if key == 87:
             self.cam.moveUp()
@@ -1014,7 +1050,7 @@ class VideoFrameDisplay(QGroupBox):
             self.coordFile = self.coordFiles[cs]
             self.coordFile = open(self.coordFile)
             self.coordFileReader = csv.DictReader(self.coordFile)
-            print("{} is reading 2D Coordinates from {}".format(self.cName, 
+            print("{} is reading 2D Coordinates from:\n\t {}".format(self.cName, 
                                                            self.coordFiles[cs]))
         except Exception as e:
             print(e)
